@@ -1,10 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   // https://nuxt.com/modules
-  modules: [
-    '@nuxthub/core',
-    '@nuxt/eslint',
-  ],
+  modules: ['@nuxthub/core', '@nuxt/eslint', '@nuxtjs/supabase'],
 
   // https://devtools.nuxt.com
   devtools: { enabled: true },
@@ -13,8 +10,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       // Can be overridden by NUXT_PUBLIC_HELLO_TEXT environment variable
-      helloText: 'FilDB goes here.',
-    },
+      helloText: 'FilDB goes here.'
+    }
   },
   // https://nuxt.com/docs/getting-started/upgrade#testing-nuxt-4
   future: { compatibilityVersion: 4 },
@@ -26,9 +23,7 @@ export default defineNuxtConfig({
   // https://eslint.nuxt.com
   eslint: {
     config: {
-      stylistic: {
-        quotes: 'single',
-      },
-    },
-  },
-})
+      stylistic: false
+    }
+  }
+});
