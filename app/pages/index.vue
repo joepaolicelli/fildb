@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const user = useSupabaseUser();
+const supabase = useSupabaseClient();
 const runtimeConfig = useRuntimeConfig();
 const colors = [
   '#f87171',
@@ -23,6 +25,10 @@ const color = useState(
   'color',
   () => colors[Math.floor(Math.random() * colors.length)]
 );
+
+const logout = async () => {
+  await supabase.auth.signOut();
+};
 </script>
 
 <template>
@@ -31,6 +37,10 @@ const color = useState(
       {{ runtimeConfig.public.helloText }}
     </h1>
     <NuxtLink to="/" external> refresh </NuxtLink>
+    <NuxtLink to="/login" external> login </NuxtLink>
+    <NuxtLink to="/admin" external> admin </NuxtLink>
+    {{ user?.email }}
+    <button type="button" @click="logout">Logout</button>
   </div>
 </template>
 

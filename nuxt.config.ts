@@ -10,8 +10,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       // Can be overridden by NUXT_PUBLIC_HELLO_TEXT environment variable
-      helloText: 'FilDB goes here.'
-    }
+      helloText: 'FilDB goes here.',
+    },
   },
   // https://nuxt.com/docs/getting-started/upgrade#testing-nuxt-4
   future: { compatibilityVersion: 4 },
@@ -23,7 +23,16 @@ export default defineNuxtConfig({
   // https://eslint.nuxt.com
   eslint: {
     config: {
-      stylistic: false
-    }
-  }
+      stylistic: false,
+    },
+  },
+
+  // https://supabase.nuxtjs.org/get-started#options
+  supabase: {
+    redirectOptions: {
+      login: '/login',
+      callback: '/confirm',
+      include: ['/admin(/*)?'],
+    },
+  },
 });
