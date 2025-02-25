@@ -1,14 +1,25 @@
 <script setup lang="ts">
+import type { FormSubmitEvent } from '#ui/types';
+import { z } from 'zod';
+
 const user = useSupabaseUser();
 const supabase = useSupabaseClient();
-const email = ref('');
-const password = ref('');
+const creds = reactive({
+  email: undefined,
+  password: undefined,
+});
 
-const signInWithPassword = async () => {
+const loginSchema = z.object({
+  email: z.string().email('Invalid email'),
+  password: z.string(),
+});
+type LoginSchema = z.output<typeof loginSchema>;
+
+const signInWithPassword = async (event: FormSubmitEvent<LoginSchema>) => {
   console.log(user);
   const { error } = await supabase.auth.signInWithPassword({
-    email: email.value,
-    password: password.value,
+    email: event.data.email,
+    password: event.data.password,
   });
   if (error) console.log(error);
 };
@@ -22,8 +33,14 @@ watchEffect(() => {
 </script>
 <template>
   <div>
-    <button @click="signInWithPassword">Sign In with E-Mail</button>
-    <input v-model="email" type="email" />
-    <input v-model="password" type="password" />
+    <UForm :schema="loginSchema" :state="creds" @submit="signInWithPassword">
+      <UFormGroup label="Email" name="email">
+        <UInput v-model="creds.email" />
+      </UFormGroup>
+      <UFormGroup label="Password" name="password">
+        <UInput v-model="creds.password" type="password" />
+      </UFormGroup>
+      <UButton type="submit"> Log In </UButton>
+    </UForm>
   </div>
 </template>
