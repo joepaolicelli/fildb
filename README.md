@@ -106,3 +106,9 @@ $$ language plpgsql stable security definer set search_path = '';
 ```
 
 Then, in the Supabase dashboard, under Authentication > Hooks, add the Customize Access Token (JWT) Claims hook, calling the custom_access_token_hook function.
+
+## Notes
+
+### Workarounds Used During Development
+
+- [Issue](https://github.com/nuxt/ui/issues/3139) when setting up Nuxt UI, [had to install tailwind packages to dev dependencies as described here](https://github.com/nuxt-modules/tailwindcss/issues/942#issuecomment-2669947831).

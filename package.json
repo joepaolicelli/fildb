@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@nuxt/eslint": "^0.7.5",
+    "@nuxt/ui": "2.21.0",
     "@nuxthub/core": "^0.8.11",
     "@nuxtjs/supabase": "1.4.6",
     "drizzle-orm": "^0.39.3",
@@ -22,9 +23,15 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@headlessui/tailwindcss": "^0.2.2",
     "@nuxt/eslint-config": "^0.7.5",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/container-queries": "^0.1.1",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
     "drizzle-kit": "^0.30.4",
     "eslint": "^9.18.0",
+    "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3",
     "vue-tsc": "^2.2.0",
     "wrangler": "^3.101.0"
