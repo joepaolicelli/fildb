@@ -3,6 +3,8 @@ export default defineNuxtConfig({
   // https://nuxt.com/modules
   modules: ['@nuxthub/core', '@nuxt/eslint', '@nuxtjs/supabase', '@nuxt/ui'],
 
+  css: ['~/assets/css/main.css'],
+
   // https://devtools.nuxt.com
   devtools: { enabled: true },
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FormSubmitEvent } from '#ui/types';
+import type { FormSubmitEvent } from '@nuxt/ui';
 import { z } from 'zod';
 
 const user = useSupabaseUser();
@@ -34,12 +34,12 @@ watchEffect(() => {
 <template>
   <div>
     <UForm :schema="loginSchema" :state="creds" @submit="signInWithPassword">
-      <UFormGroup label="Email" name="email">
+      <UFormField label="Email" name="email">
         <UInput v-model="creds.email" />
-      </UFormGroup>
-      <UFormGroup label="Password" name="password">
+      </UFormField>
+      <UFormField label="Password" name="password">
         <UInput v-model="creds.password" type="password" />
-      </UFormGroup>
+      </UFormField>
       <UButton type="submit"> Log In </UButton>
     </UForm>
   </div>

@@ -2,7 +2,7 @@
 import withNuxt from './.nuxt/eslint.config.mjs';
 
 export default withNuxt().overrideRules({
-  // Your custom configs here
+  '@typescript-eslint/no-unused-vars': ['warn', { caughtErrors: 'none' }],
   'vue/html-self-closing': [
     'warn',
     { html: { normal: 'never', void: 'always' } },
