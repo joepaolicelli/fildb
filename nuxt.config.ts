@@ -1,7 +1,13 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   // https://nuxt.com/modules
-  modules: ['@nuxthub/core', '@nuxt/eslint', '@nuxtjs/supabase', '@nuxt/ui'],
+  modules: [
+    '@nuxthub/core',
+    '@nuxt/eslint',
+    '@nuxtjs/supabase',
+    '@nuxt/ui',
+    '@nuxt/test-utils/module',
+  ],
 
   css: ['~/assets/css/main.css'],
 
