@@ -19,6 +19,8 @@ export default defineNuxtConfig({
     public: {
       // Can be overridden by NUXT_PUBLIC_HELLO_TEXT environment variable
       helloText: 'FilDB goes here.',
+      supabaseKey: '',
+      supabaseUrl: '',
     },
   },
   // https://nuxt.com/docs/getting-started/upgrade#testing-nuxt-4
