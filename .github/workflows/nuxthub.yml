@@ -37,8 +37,8 @@ jobs:
         id: deploy
         with:
           project-key: fildb-3jwq
-    test:
-      uses: ./.github/workflows/playwright.yml
-      needs: deploy
-      with:
-        deployment-url: ${{ needs.deploy.outputs.deployment-url }}
+  test:
+    uses: ./.github/workflows/playwright.yml
+    needs: deploy
+    with:
+      deployment-url: ${{ needs.deploy.outputs.deployment-url }}
