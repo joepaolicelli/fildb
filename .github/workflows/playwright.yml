@@ -22,8 +22,15 @@ jobs:
         run: pnpm exec playwright install --with-deps
       - name: Run Playwright tests
         run: pnpm exec playwright test
-      - name: Publish Test Summary Results
-        run: npx github-actions-ctrf@0.0.58 ctrf/ctrf-report.json
+      - name: GitHub Test Reporter
+        uses: ctrf-io/github-test-reporter@v1.0.9
+        with:
+          report-path: './ctrf/*.json'
+          summary-report: true
+          failed-report: true
+          flaky-report: true
+          skipped-report: true
+          suite-folded-report: true
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
