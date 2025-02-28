@@ -112,3 +112,22 @@ Then, in the Supabase dashboard, under Authentication > Hooks, add the Customize
 ### Workarounds Used During Development
 
 - [Issue](https://github.com/nuxt/ui/issues/3139) when setting up Nuxt UI, [had to install tailwind packages to dev dependencies as described here](https://github.com/nuxt-modules/tailwindcss/issues/942#issuecomment-2669947831).
+
+## Testing
+
+### Unit
+
+`pnpm unit`
+
+### E2E
+
+`pnpm e2e`
+
+End-to-end tests use [Playwright](https://playwright.dev/).
+
+#### E2E Environment Setup
+
+Tests are run against the preview environment deployments on NuxtHub, so there's no extra setup there. The preview environment should be configured to use a test Supabase db, which should be configured with:
+
+- Email & password users in Supabase Auth.
+- A function to drop all tables from the public schema.
