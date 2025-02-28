@@ -6,6 +6,7 @@ jobs:
     name: 'Deploy to NuxtHub'
     runs-on: ubuntu-latest
     environment:
+      # Ternary operator (see https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/evaluate-expressions-in-workflows-and-actions#example)
       name: ${{ github.ref == 'refs/heads/master' && 'production' || 'preview' }}
       url: ${{ steps.deploy.outputs.deployment-url }}
     permissions:
@@ -38,6 +39,8 @@ jobs:
         with:
           project-key: fildb-3jwq
   test:
+    # From GitHub Actions docs: 'A job that is skipped will report its status as "Success".'
+    if: ${{ github.ref != 'refs/heads/master' }}
     uses: ./.github/workflows/playwright.yml
     needs: deploy
     with:
