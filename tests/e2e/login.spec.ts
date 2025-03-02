@@ -6,7 +6,7 @@ import { getTestUsers, type TestUserInfo } from './util';
 
 const supabase = createClient(
   process.env.NUXT_PUBLIC_SUPABASE_URL ?? '',
-  process.env.SUPABASE_SECRET_KEY ?? 'placeholder'
+  process.env.TEST_SUPABASE_SECRET_KEY ?? 'placeholder'
 );
 const testUsers = getTestUsers();
 
