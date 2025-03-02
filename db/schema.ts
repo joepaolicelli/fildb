@@ -20,7 +20,7 @@ const timestamps = {
 
 /* === Permissions === */
 // Based on https://supabase.com/docs/guides/database/postgres/custom-claims-and-role-based-access-control-rbac?queryGroups=language&language=plpgsql#create-a-table-to-track-user-roles-and-permissions
-export const appPermission = pgEnum('app_permission', [
+/*export const appPermission = pgEnum('app_permission', [
   'manage_brands',
   'manage_pages',
   'manage_pending_items',
@@ -56,7 +56,7 @@ export const rolePermissions = pgTable(
     permission: appPermission().notNull(),
   },
   (t) => [unique().on(t.role, t.permission)]
-);
+);*/
 
 /* === Data === */
 export const noteTypeEnum = pgEnum('note_type', [

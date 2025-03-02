@@ -24,11 +24,45 @@ npx nuxthub deploy
 
 ### Supabase
 
+The database structure is in `db/schema.ts`. Until [this bug](https://github.com/drizzle-team/drizzle-orm/issues/3504) in `drizzle-kit push` is fixed, use `drizzle-kit generate` and `drizzle-kit migrate`.
+
 #### Role-Based Access Control
 
-Permissions are managed using the [Custom Claims & Role-based Access Control (RBAC) template from the Supabase docs](https://supabase.com/docs/guides/database/postgres/custom-claims-and-role-based-access-control-rbac?queryGroups=language&language=plpgsql). The necessary enums and tables are included in schema.ts, but there are two postgres functions that need to manually be created. To do so, first run just the top "Permissions" section of schema.ts, and then run the following SQL (the Supabase SQL editor works fine).
+Permissions are managed using the [Custom Claims & Role-based Access Control (RBAC) template from the Supabase docs](https://supabase.com/docs/guides/database/postgres/custom-claims-and-role-based-access-control-rbac?queryGroups=language&language=plpgsql). The following SQL needs to be run before using drizzle to set up the rest of the schema. Using the Supabase SQL editor works fine.
 
 ```sql
+CREATE TYPE app_permission AS ENUM (
+  'manage_brands',
+  'manage_pages',
+  'manage_pending_items',
+  'manage_published_items'
+);
+CREATE TYPE app_role AS ENUM (
+  'admin',
+  'maintainer'
+);
+
+CREATE TABLE "role_permissions" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"role" "app_role" NOT NULL,
+	"permission" "app_permission" NOT NULL,
+	CONSTRAINT "role_permissions_role_permission_unique" UNIQUE("role","permission")
+);
+
+ALTER TABLE "role_permissions" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "read for all" ON "role_permissions" AS PERMISSIVE FOR SELECT TO public USING (true);
+
+CREATE TABLE "user_roles" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
+	"role" "app_role" NOT NULL,
+	CONSTRAINT "user_roles_userId_role_unique" UNIQUE("user_id","role")
+);
+
+ALTER TABLE "user_roles" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE cascade ON UPDATE no action;
+CREATE POLICY "user can read own roles" ON "user_roles" AS PERMISSIVE FOR SELECT TO "authenticated" USING ((select auth.uid()) = user_id);
+
 -- Create the auth hook function
 create or replace function public.custom_access_token_hook(event jsonb)
 returns jsonb
@@ -105,7 +139,7 @@ end;
 $$ language plpgsql stable security definer set search_path = '';
 ```
 
-Then, in the Supabase dashboard, under Authentication > Hooks, add the Customize Access Token (JWT) Claims hook, calling the custom_access_token_hook function.
+Then, in the Supabase dashboard, under Authentication > Hooks, add the Customize Access Token (JWT) Claims hook, calling the custom_access_token_hook function. Make sure to hit the toggle to enable the hook before saving it.
 
 ## Notes
 
@@ -129,5 +163,30 @@ End-to-end tests use [Playwright](https://playwright.dev/).
 
 Tests are run against the preview environment deployments on NuxtHub, so there's no extra setup there. The preview environment should be configured to use a test Supabase db, which should be configured with:
 
-- Email & password users in Supabase Auth.
-- A function to drop all tables from the public schema.
+- The same schema as the production database (see [above](#Supabase)).
+- Test users in Supabase Auth.
+- A function to truncate all tables in the public schema.
+
+##### DB Schema
+
+For now, until [this](https://github.com/drizzle-team/drizzle-orm/discussions/3405) is available, temporarily change the db url in `drizzle.config.ts`.
+
+##### Test Users
+
+Create the users as listed in tests/e2e/util.ts:getTestUsers.
+
+##### Clear Public Schema Function
+
+Create a new function named `clear_public_schema` in the test Supabase, in the public schema, changing language to `sql`.
+
+```sql
+do $$ declare
+    r record;
+begin
+    for r in (select tablename from pg_tables where schemaname = 'public') loop
+        execute 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' CASCADE';
+    end loop;
+end $$;
+```
+
+(This only clears table rows, so it won't delete itself or the enums.)

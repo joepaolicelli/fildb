@@ -14,7 +14,7 @@ dotenv.config();
 export default defineConfig({
   testDir: './tests/e2e',
   /* Run tests in files in parallel */
-  fullyParallel: true,
+  fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
@@ -22,7 +22,8 @@ export default defineConfig({
   /* Limit the number of failures on CI to save resources */
   maxFailures: process.env.CI ? 10 : undefined,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  // workers: process.env.CI ? 1 : undefined,
+  workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [['html'], ['playwright-ctrf-json-reporter', {}]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
