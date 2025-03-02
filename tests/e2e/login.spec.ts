@@ -5,7 +5,7 @@ import { objectToSnake } from 'ts-case-convert';
 import { getTestUsers, type TestUserInfo } from './util';
 
 const supabase = createClient(
-  process.env.NUXT_PUBLIC_SUPABASE_URL ?? '',
+  process.env.TEST_SUPABASE_URL ?? '',
   process.env.TEST_SUPABASE_SECRET_KEY ?? 'placeholder'
 );
 const testUsers = getTestUsers();

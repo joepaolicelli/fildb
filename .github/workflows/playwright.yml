@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PLAYWRIGHT_BASE_URL: ${{ inputs.deployment-url }}
+      TEST_SUPABASE_URL: ${{ secrets.TEST_SUPABASE_URL }}
       TEST_SUPABASE_SECRET_KEY: ${{ secrets.TEST_SUPABASE_SECRET_KEY }}
       TEST_ADMIN_1_PW: ${{ secrets.TEST_ADMIN_1_PW }}
       TEST_MAINTAINER_1_PW: ${{ secrets.TEST_MAINTAINER_1_PW }}
@@ -36,6 +37,12 @@ jobs:
           flaky-report: true
           skipped-report: true
           suite-folded-report: true
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: ctrf-report
+          path: ctrf/
+          retention-days: 30
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
