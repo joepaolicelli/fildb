@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
 import { objectToSnake } from 'ts-case-convert';
 
-import { getTestUsers, type TestUserInfo } from './util';
+import { getTestUsers } from './util';
 
 const supabase = createClient(
   process.env.TEST_SUPABASE_URL ?? '',
@@ -10,7 +10,7 @@ const supabase = createClient(
 );
 const testUsers = getTestUsers();
 
-test.beforeAll(async ({ page }) => {
+test.beforeAll(async () => {
   // Clear DB.
   await supabase.rpc('clear_public_schema');
   // Setup permissions and roles in DB.
