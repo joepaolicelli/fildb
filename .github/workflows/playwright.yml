@@ -30,6 +30,7 @@ jobs:
         run: pnpm exec playwright test
       - name: GitHub Test Reporter
         uses: ctrf-io/github-test-reporter@v1.0.9
+        if: ${{ !cancelled() }}
         with:
           report-path: './ctrf/*.json'
           summary-report: true
