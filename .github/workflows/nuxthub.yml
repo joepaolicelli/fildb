@@ -45,3 +45,4 @@ jobs:
     needs: deploy
     with:
       deployment-url: ${{ needs.deploy.outputs.deployment-url }}
+    secrets: inherit
