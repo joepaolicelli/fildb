@@ -91,6 +91,7 @@ export const products = pgTable(
     brandId: uuid()
       .notNull()
       .references(() => brands.id),
+    sources: jsonb(),
     ...timestamps,
     publishedAt: timestamp(),
   },
