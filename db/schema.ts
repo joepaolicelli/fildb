@@ -166,6 +166,7 @@ export const saleUnitPackagedProducts = pgTable(
 export const sites = pgTable('sites', {
   id: uuid().primaryKey(),
   name: text().notNull(),
+  homepage: text(),
   ...timestamps,
 });
 
@@ -175,12 +176,23 @@ export const scrapers = pgTable('scrapers', {
   ...timestamps,
 });
 
+export const scrapeStatus = pgEnum('scrape_status', [
+  'pending',
+  'active',
+  'paused',
+  'archived',
+]);
+
 export const pages = pgTable('pages', {
   id: uuid().primaryKey(),
   url: text().notNull(),
   scrapeUrl: text(),
-  siteId: uuid().references(() => sites.id),
+  siteId: uuid()
+    .notNull()
+    .references(() => sites.id),
   scraperId: uuid().references(() => scrapers.id),
+  scrapeGroup: text(),
+  scrapeStatus: scrapeStatus().notNull().default('pending'),
   scraperInputs: jsonb(),
   ...timestamps,
 });
