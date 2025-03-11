@@ -12,6 +12,9 @@ const user = useSupabaseUser();
 
 interface ProductSource {
   url: string;
+  pageId?: string;
+  ts?: number;
+  note?: string;
 }
 
 const { data: brands }: { data: Ref<Tables<'products'>[]> } =
