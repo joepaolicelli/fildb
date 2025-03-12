@@ -9,9 +9,13 @@ const user = useSupabaseUser();
     class="hidden overflow-y-auto lg:sticky lg:top-0 lg:block lg:max-h-screen"
   >
     <UButton
+      :icon="
+        layoutStore.adminSidebarOpen
+          ? 'solar:double-alt-arrow-left-linear'
+          : 'solar:double-alt-arrow-right-linear'
+      "
       @click="layoutStore.adminSidebarOpen = !layoutStore.adminSidebarOpen"
-      >>></UButton
-    >
+    />
     <div>Admin Dashboard</div>
     <div>Logged in as {{ user?.email }}.</div>
   </aside>

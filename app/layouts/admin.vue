@@ -15,11 +15,11 @@ const layoutStore = useLayoutStore();
       <SiteHeader>
         <template #right>
           <UButton
+            icon="solar:hamburger-menu-linear"
             @click="
               layoutStore.adminSidebarOpen = !layoutStore.adminSidebarOpen
             "
-            >>></UButton
-          >
+          />
         </template>
       </SiteHeader>
       <slot></slot>
