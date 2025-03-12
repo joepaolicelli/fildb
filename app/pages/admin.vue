@@ -1,10 +1,4 @@
-<script setup lang="ts">
-const user = useSupabaseUser();
-</script>
+<script setup lang="ts"></script>
 <template>
-  <div>
-    <div>Admin Dashboard</div>
-    <div>Logged in as {{ user?.email }}.</div>
-    <NuxtPage />
-  </div>
+  <NuxtPage />
 </template>
