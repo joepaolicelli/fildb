@@ -169,30 +169,36 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          scrape_group: string | null
+          scrape_status: Database["public"]["Enums"]["scrape_status"]
           scrape_url: string | null
           scraper_id: string | null
           scraper_inputs: Json | null
-          site_id: string | null
+          site_id: string
           updated_at: string
           url: string
         }
         Insert: {
           created_at?: string
           id: string
+          scrape_group?: string | null
+          scrape_status?: Database["public"]["Enums"]["scrape_status"]
           scrape_url?: string | null
           scraper_id?: string | null
           scraper_inputs?: Json | null
-          site_id?: string | null
+          site_id: string
           updated_at?: string
           url: string
         }
         Update: {
           created_at?: string
           id?: string
+          scrape_group?: string | null
+          scrape_status?: Database["public"]["Enums"]["scrape_status"]
           scrape_url?: string | null
           scraper_id?: string | null
           scraper_inputs?: Json | null
-          site_id?: string | null
+          site_id?: string
           updated_at?: string
           url?: string
         }
@@ -221,6 +227,7 @@ export type Database = {
           id: string
           name: string
           published_at: string | null
+          sources: Json | null
           updated_at: string
         }
         Insert: {
@@ -230,6 +237,7 @@ export type Database = {
           id: string
           name: string
           published_at?: string | null
+          sources?: Json | null
           updated_at?: string
         }
         Update: {
@@ -239,6 +247,7 @@ export type Database = {
           id?: string
           name?: string
           published_at?: string | null
+          sources?: Json | null
           updated_at?: string
         }
         Relationships: [
@@ -362,18 +371,21 @@ export type Database = {
       sites: {
         Row: {
           created_at: string
+          homepage: string | null
           id: string
           name: string
           updated_at: string
         }
         Insert: {
           created_at?: string
+          homepage?: string | null
           id: string
           name: string
           updated_at?: string
         }
         Update: {
           created_at?: string
+          homepage?: string | null
           id?: string
           name?: string
           updated_at?: string
@@ -424,6 +436,7 @@ export type Database = {
         | "manage_published_items"
       app_role: "admin" | "maintainer"
       note_type: "general" | "official_description"
+      scrape_status: "pending" | "active" | "paused" | "archived"
     }
     CompositeTypes: {
       [_ in never]: never

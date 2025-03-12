@@ -16,11 +16,18 @@ interface ProductSource {
   note?: string;
 }
 
+interface Sources {
+  sources: ProductSource[];
+}
+
+// Get brands.
 const { data: brands }: { data: Ref<Tables<'products'>[]> } =
   await useAsyncData(async () => {
     const { data } = await client.from('brands').select();
     return data != null ? data.map(objectToCamel) : [];
   });
+
+// Get pending products.
 const {
   status,
   data: pendingProducts,
@@ -46,13 +53,6 @@ const columns: TableColumn<Tables<'products'>>[] = [
   {
     accessorKey: 'sources',
     header: 'Sources',
-    cell: ({ row }) => {
-      const sources =
-        row.getValue<{ sources: ProductSource[] }>('sources') != null
-          ? row.getValue<{ sources: ProductSource[] }>('sources').sources
-          : ([] as ProductSource[]);
-      return h('div', ...sources.map((s) => h(ULink, { to: s.url }, s.url)));
-    },
   },
 ];
 </script>
@@ -62,6 +62,16 @@ const columns: TableColumn<Tables<'products'>>[] = [
       :columns="columns"
       :data="pendingProducts != null ? pendingProducts : []"
       :loading="status === 'pending'"
-    />
+    >
+      <template #sources-cell="{ row }">
+        <ULink
+          v-for="source of (row.getValue('sources') as Sources).sources"
+          :key="source.url"
+          :to="source.url"
+        >
+          Link
+        </ULink>
+      </template>
+    </UTable>
   </div>
 </template>

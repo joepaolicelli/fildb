@@ -16,7 +16,6 @@ const loginSchema = z.object({
 type LoginSchema = z.output<typeof loginSchema>;
 
 const signInWithPassword = async (event: FormSubmitEvent<LoginSchema>) => {
-  console.log(user);
   const { error } = await supabase.auth.signInWithPassword({
     email: event.data.email,
     password: event.data.password,
@@ -26,7 +25,6 @@ const signInWithPassword = async (event: FormSubmitEvent<LoginSchema>) => {
 
 watchEffect(() => {
   if (user.value) {
-    console.log(user.value);
     navigateTo('/admin');
   }
 });
