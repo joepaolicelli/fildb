@@ -1,28 +1,25 @@
 <script setup lang="ts">
-const sidebarStatus = reactive({
-  open: true,
-});
+import { useLayoutStore } from '@/stores/layout';
+const layoutStore = useLayoutStore();
 </script>
 <template>
   <div
     class="grid min-h-screen transition-[grid-template-columns] duration-300 ease-in-out"
     :class="{
-      'grid-cols-[300px_auto]': sidebarStatus.open,
-      'grid-cols-[64px_auto]': !sidebarStatus.open,
+      'grid-cols-[300px_auto]': layoutStore.adminSidebarOpen,
+      'grid-cols-[64px_auto]': !layoutStore.adminSidebarOpen,
     }"
   >
-    <AdminSidebar
-      :sidebar-status="sidebarStatus"
-      @toggle-sidebar="
-        sidebarStatus.open
-          ? (sidebarStatus.open = false)
-          : (sidebarStatus.open = true)
-      "
-    />
+    <AdminSidebar />
     <div>
       <SiteHeader>
         <template #right>
-          <UButton>>></UButton>
+          <UButton
+            @click="
+              layoutStore.adminSidebarOpen = !layoutStore.adminSidebarOpen
+            "
+            >>></UButton
+          >
         </template>
       </SiteHeader>
       <slot></slot>

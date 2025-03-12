@@ -7,6 +7,7 @@ export default defineNuxtConfig({
     '@nuxtjs/supabase',
     '@nuxt/ui',
     '@nuxt/test-utils/module',
+    '@pinia/nuxt',
   ],
 
   css: ['~/assets/css/main.css'],

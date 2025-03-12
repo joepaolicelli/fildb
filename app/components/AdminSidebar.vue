@@ -1,20 +1,17 @@
 <script setup lang="ts">
-interface SidebarStatus {
-  open: boolean;
-}
+import { useLayoutStore } from '@/stores/layout';
 
-const props = defineProps<{
-  sidebarStatus: SidebarStatus;
-}>();
-defineEmits(['toggleSidebar']);
-
+const layoutStore = useLayoutStore();
 const user = useSupabaseUser();
 </script>
 <template>
   <aside
     class="hidden overflow-y-auto lg:sticky lg:top-0 lg:block lg:max-h-screen"
   >
-    <UButton @click="$emit('toggleSidebar')">>></UButton>
+    <UButton
+      @click="layoutStore.adminSidebarOpen = !layoutStore.adminSidebarOpen"
+      >>></UButton
+    >
     <div>Admin Dashboard</div>
     <div>Logged in as {{ user?.email }}.</div>
   </aside>

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-const user = useSupabaseUser();
-
 const navItems = ref([
   {
     label: 'Home',
