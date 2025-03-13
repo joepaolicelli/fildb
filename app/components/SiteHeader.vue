@@ -11,11 +11,13 @@ const navItems = ref([
 ]);
 </script>
 <template>
-  <div class="flex justify-between">
-    <div>
+  <div class="sticky top-0 flex w-screen justify-between">
+    <div class="self-center text-2xl">
       <b>FilDB</b>
     </div>
-    <UNavigationMenu :items="navItems" />
+    <div>
+      <UNavigationMenu :items="navItems" class="self-center" />
+    </div>
     <div>
       <slot name="right"></slot>
     </div>
