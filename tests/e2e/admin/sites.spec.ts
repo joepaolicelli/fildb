@@ -42,4 +42,22 @@ test.describe('Sites', () => {
       page.getByRole('cell', { name: 'Test Site 2' }),
     ).toBeVisible();
   });
+
+  test('should add site', async ({ page }) => {
+    await login(page, testUsers.testMaintainer1);
+    await page.goto('/admin/sites');
+
+    await page.getByRole('textbox', { name: 'Name' }).fill('My Test Site');
+    await page
+      .getByRole('textbox', { name: 'Homepage' })
+      .fill('https://example.com/mytestsite');
+    await page.getByRole('button', { name: 'Create' }).click();
+
+    await expect(page.getByText('Created!')).toBeVisible();
+
+    await page.goto('/admin/sites');
+    await expect(
+      page.getByRole('cell', { name: 'My Test Site' }),
+    ).toBeVisible();
+  });
 });
