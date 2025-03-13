@@ -4,6 +4,7 @@ definePageMeta({ layout: 'admin' });
 <template>
   <div>
     <div class="text-xl italic">Sites</div>
+    <NewSiteForm />
     <SitesTable />
   </div>
 </template>
