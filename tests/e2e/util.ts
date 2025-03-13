@@ -5,7 +5,7 @@ import { objectToSnake } from 'ts-case-convert';
 export function createTestSupabaseClient() {
   return createClient(
     process.env.TEST_SUPABASE_URL ?? '',
-    process.env.TEST_SUPABASE_SECRET_KEY ?? 'placeholder'
+    process.env.TEST_SUPABASE_SECRET_KEY ?? 'placeholder',
   );
 }
 
@@ -29,7 +29,7 @@ export async function prepDb(supabase: SupabaseClient) {
       { userId: testUsers.testAdmin1.userId, role: 'admin' },
       { userId: testUsers.testMaintainer1.userId, role: 'maintainer' },
       { userId: testUsers.testMaintainer2.userId, role: 'maintainer' },
-    ].map(objectToSnake)
+    ].map(objectToSnake),
   );
 }
 
@@ -44,7 +44,6 @@ export async function login(page: Page, user: TestUserInfo) {
   await page.getByRole('textbox', { name: 'Email' }).fill(user.email);
   await page.getByRole('textbox', { name: 'Password' }).fill(user.password);
   await page.getByRole('button', { name: 'Log In' }).click();
-
   await page.waitForURL('/admin');
 }
 
