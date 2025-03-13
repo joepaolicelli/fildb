@@ -5,12 +5,12 @@ import { z } from 'zod';
 const user = useSupabaseUser();
 const supabase = useSupabaseClient();
 const creds = reactive({
-  email: undefined,
-  password: undefined,
+  email: '',
+  password: '',
 });
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email'),
+  email: z.string().email({ message: 'Invalid email' }),
   password: z.string(),
 });
 type LoginSchema = z.output<typeof loginSchema>;
