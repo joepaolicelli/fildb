@@ -1,22 +1,18 @@
 import { test, expect } from '@playwright/test';
 import { objectToSnake } from 'ts-case-convert';
 
-import { createTestSupabaseClient, getTestUsers, login, prepDb } from './util';
+import {
+  createTestSupabaseClient,
+  getTestUsers,
+  login,
+  prepDb,
+} from '../util';
 
 const supabase = createTestSupabaseClient();
 const testUsers = getTestUsers();
 
 test.beforeAll(async () => {
   await prepDb(supabase);
-});
-
-test.describe('Page Access', () => {
-  test('should redirect to /login if not logged in', async ({ page }) => {
-    await page.goto('/admin');
-    // Not logged in, so redirected.
-    await page.waitForURL('/login');
-    expect(page.url().endsWith('/login'));
-  });
 });
 
 test.describe('Pending Products', () => {
@@ -27,7 +23,7 @@ test.describe('Pending Products', () => {
           id: 'e4e893b8-9197-4b11-82a9-88456a4c11f3',
           name: 'Test Brand',
         },
-      ].map(objectToSnake)
+      ].map(objectToSnake),
     );
 
     await supabase.from('products').insert(
@@ -44,17 +40,17 @@ test.describe('Pending Products', () => {
           brandId: 'e4e893b8-9197-4b11-82a9-88456a4c11f3',
           sources: { sources: [{ url: 'https://example.com' }] },
         },
-      ].map(objectToSnake)
+      ].map(objectToSnake),
     );
 
     await login(page, testUsers.testMaintainer1);
-    await page.goto('/admin');
+    await page.goto('/admin/pending');
 
     await expect(
-      page.getByRole('cell', { name: 'TestProduct1' })
+      page.getByRole('cell', { name: 'TestProduct1' }),
     ).toBeVisible();
     await expect(
-      page.getByRole('cell', { name: 'TestProduct2' })
+      page.getByRole('cell', { name: 'TestProduct2' }),
     ).toBeVisible();
   });
 });
