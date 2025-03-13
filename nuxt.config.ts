@@ -24,6 +24,13 @@ export default defineNuxtConfig({
       supabaseUrl: '',
     },
   },
+
+  // https://nuxt.com/docs/guide/concepts/rendering#hybrid-rendering
+  routeRules: {
+    '/login': { ssr: false },
+    '/admin/**': { ssr: false },
+  },
+
   // https://nuxt.com/docs/getting-started/upgrade#testing-nuxt-4
   future: { compatibilityVersion: 4 },
   compatibilityDate: '2024-07-30',
