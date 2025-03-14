@@ -32,7 +32,7 @@ const {
 } = await useAsyncData(async () => {
   const [brands, pendingProducts] = await Promise.all([
     client.from('brands').select(),
-    client.from('products').select(),
+    client.from('products').select().is('published_at', null),
   ]);
 
   return {
