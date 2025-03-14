@@ -56,15 +56,16 @@ test.describe('Sites', () => {
     await expect(page.getByText('Created!')).toBeVisible();
 
     await page.goto('/admin/sites');
+    await expect(page.getByText('1 sites')).toBeVisible();
     await expect(
       page.getByRole('cell', { name: 'My Test Site' }),
     ).toBeVisible();
-    await expect(page.getByText('1 sites')).toBeVisible();
+    await expect(
+      page.getByRole('cell', { name: 'https://example.com/mytestsite' }),
+    ).toBeVisible();
   });
 
-  test("shouldn't be able to add site without permissions", async ({
-    page,
-  }) => {
+  test('should fail to add site without permissions', async ({ page }) => {
     await login(page, testUsers.testRolelessUser);
     await page.goto('/admin/sites');
 
