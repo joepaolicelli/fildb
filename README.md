@@ -35,7 +35,9 @@ CREATE TYPE app_permission AS ENUM (
   'manage_brands',
   'manage_pages',
   'manage_pending_items',
-  'manage_published_items'
+  'manage_published_items',
+  'manage_scrapers',
+  'manage_sites'
 );
 CREATE TYPE app_role AS ENUM (
   'admin',
@@ -140,6 +142,42 @@ $$ language plpgsql stable security definer set search_path = '';
 ```
 
 Then, in the Supabase dashboard, under Authentication > Hooks, add the Customize Access Token (JWT) Claims hook, calling the custom_access_token_hook function. Make sure to hit the toggle to enable the hook before saving it.
+
+##### Setting Up Roles and Permissions
+
+Can be modified as desired:
+
+```sql
+INSERT INTO role_permissions(role, permission) VALUES ('admin', 'manage_brands');
+INSERT INTO role_permissions(role, permission) VALUES ('admin', 'manage_pages');
+INSERT INTO role_permissions(role, permission) VALUES ('admin', 'manage_pending_items');
+INSERT INTO role_permissions(role, permission) VALUES ('admin', 'manage_published_items');
+INSERT INTO role_permissions(role, permission) VALUES ('admin', 'manage_scrapers');
+INSERT INTO role_permissions(role, permission) VALUES ('admin', 'manage_sites');
+INSERT INTO role_permissions(role, permission) VALUES ('maintainer', 'manage_brands');
+INSERT INTO role_permissions(role, permission) VALUES ('maintainer', 'manage_pending_items');
+INSERT INTO role_permissions(role, permission) VALUES ('maintainer', 'manage_published_items');
+```
+
+To clear out `role_permissions` table (such as before re-configuring):
+
+```sql
+TRUNCATE TABLE role_permissions;
+```
+
+##### Updating Permissions and Roles
+
+To add a new `app_permission`:
+
+```sql
+ALTER TYPE app_permission ADD VALUE 'new_app_permission';
+```
+
+To add a new `app_role`:
+
+```sql
+ALTER TYPE app_role ADD VALUE 'new_app_role';
+```
 
 ## Notes
 

@@ -20,6 +20,8 @@ export async function prepDb(supabase: SupabaseClient) {
     { role: 'admin', permission: 'manage_pages' },
     { role: 'admin', permission: 'manage_pending_items' },
     { role: 'admin', permission: 'manage_published_items' },
+    { role: 'admin', permission: 'manage_scrapers' },
+    { role: 'admin', permission: 'manage_sites' },
     { role: 'maintainer', permission: 'manage_pages' },
     { role: 'maintainer', permission: 'manage_pending_items' },
     { role: 'maintainer', permission: 'manage_published_items' },

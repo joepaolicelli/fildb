@@ -19,44 +19,7 @@ const timestamps = {
 };
 
 /* === Permissions === */
-// Based on https://supabase.com/docs/guides/database/postgres/custom-claims-and-role-based-access-control-rbac?queryGroups=language&language=plpgsql#create-a-table-to-track-user-roles-and-permissions
-/*export const appPermission = pgEnum('app_permission', [
-  'manage_brands',
-  'manage_pages',
-  'manage_pending_items',
-  'manage_published_items',
-]);
-
-export const appRole = pgEnum('app_role', ['admin', 'maintainer']);
-
-export const userRoles = pgTable(
-  'user_roles',
-  {
-    id: uuid().defaultRandom().primaryKey(),
-    userId: uuid()
-      .references(() => authUsers.id, { onDelete: 'cascade' })
-      .notNull(),
-    role: appRole().notNull(),
-  },
-  (t) => [
-    unique().on(t.userId, t.role),
-    pgPolicy('user can read own roles', {
-      for: 'select',
-      to: authenticatedRole,
-      using: sql`(select auth.uid()) = user_id`,
-    }),
-  ]
-);
-
-export const rolePermissions = pgTable(
-  'role_permissions',
-  {
-    id: uuid().defaultRandom().primaryKey(),
-    role: appRole().notNull(),
-    permission: appPermission().notNull(),
-  },
-  (t) => [unique().on(t.role, t.permission)]
-);*/
+// See README for info on setting up appPermission and appRole enums, userRoles and rolePermissions tables, and related functions.
 
 /* === Data === */
 export const noteTypeEnum = pgEnum('note_type', [
@@ -106,7 +69,7 @@ export const products = pgTable(
       to: authenticatedRole,
       using: sql`(SELECT authorize('manage_pending_items'))`,
     }),
-  ]
+  ],
 );
 
 // Bug means this is broken right now. https://github.com/drizzle-team/drizzle-orm/issues/3332
@@ -131,7 +94,7 @@ export const packagedProducts = pgTable(
       to: 'public',
       using: sql`true`,
     }),
-  ]
+  ],
 );
 
 export const saleUnits = pgTable('sale_units', {
@@ -160,21 +123,61 @@ export const saleUnitPackagedProducts = pgTable(
       foreignColumns: [packagedProducts.id],
       name: 'sale_unit_packaged_products_id_fk',
     }),
-  ]
+  ],
 );
 
-export const sites = pgTable('sites', {
-  id: uuid().primaryKey(),
-  name: text().notNull(),
-  homepage: text(),
-  ...timestamps,
-});
+export const sites = pgTable(
+  'sites',
+  {
+    id: uuid().primaryKey(),
+    name: text().notNull(),
+    homepage: text(),
+    ...timestamps,
+  },
+  () => [
+    pgPolicy('read for all', {
+      for: 'select',
+      to: 'public',
+      using: sql`true`,
+    }),
+    pgPolicy('insert access', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`(SELECT authorize('manage_sites'))`,
+    }),
+    pgPolicy('update access', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_sites'))`,
+    }),
+  ],
+);
 
-export const scrapers = pgTable('scrapers', {
-  id: uuid().primaryKey(),
-  name: text().notNull(),
-  ...timestamps,
-});
+export const scrapers = pgTable(
+  'scrapers',
+  {
+    id: uuid().primaryKey(),
+    name: text().notNull(),
+    ...timestamps,
+  },
+  () => [
+    pgPolicy('read for all', {
+      for: 'select',
+      to: 'public',
+      using: sql`true`,
+    }),
+    pgPolicy('insert access', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`(SELECT authorize('manage_scrapers'))`,
+    }),
+    pgPolicy('update access', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_scrapers'))`,
+    }),
+  ],
+);
 
 export const scrapeStatus = pgEnum('scrape_status', [
   'pending',
@@ -183,19 +186,39 @@ export const scrapeStatus = pgEnum('scrape_status', [
   'archived',
 ]);
 
-export const pages = pgTable('pages', {
-  id: uuid().primaryKey(),
-  url: text().notNull(),
-  scrapeUrl: text(),
-  siteId: uuid()
-    .notNull()
-    .references(() => sites.id),
-  scraperId: uuid().references(() => scrapers.id),
-  scrapeGroup: text(),
-  scrapeStatus: scrapeStatus().notNull().default('pending'),
-  scraperInputs: jsonb(),
-  ...timestamps,
-});
+export const pages = pgTable(
+  'pages',
+  {
+    id: uuid().primaryKey(),
+    url: text().notNull(),
+    scrapeUrl: text(),
+    siteId: uuid()
+      .notNull()
+      .references(() => sites.id),
+    scraperId: uuid().references(() => scrapers.id),
+    scrapeGroup: text(),
+    scrapeStatus: scrapeStatus().notNull().default('pending'),
+    scraperInputs: jsonb(),
+    ...timestamps,
+  },
+  () => [
+    pgPolicy('read for all', {
+      for: 'select',
+      to: 'public',
+      using: sql`true`,
+    }),
+    pgPolicy('insert access', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`(SELECT authorize('manage_pages'))`,
+    }),
+    pgPolicy('update access', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_pages'))`,
+    }),
+  ],
+);
 
 export const pageSaleUnits = pgTable('page_sale_units', {
   pageId: uuid()
