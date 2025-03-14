@@ -11,7 +11,7 @@ import {
 const supabase = createTestSupabaseClient();
 const testUsers = getTestUsers();
 
-test.beforeAll(async () => {
+test.beforeEach(async () => {
   await prepDb(supabase);
 });
 
@@ -44,7 +44,7 @@ test.describe('Sites', () => {
   });
 
   test('should add site', async ({ page }) => {
-    await login(page, testUsers.testMaintainer1);
+    await login(page, testUsers.testAdmin1);
     await page.goto('/admin/sites');
 
     await page.getByRole('textbox', { name: 'Name' }).fill('My Test Site');
@@ -59,5 +59,26 @@ test.describe('Sites', () => {
     await expect(
       page.getByRole('cell', { name: 'My Test Site' }),
     ).toBeVisible();
+    await expect(page.getByText('1 sites')).toBeVisible();
+  });
+
+  test("shouldn't be able to add site without permissions", async ({
+    page,
+  }) => {
+    await login(page, testUsers.testRolelessUser);
+    await page.goto('/admin/sites');
+
+    await page.getByRole('textbox', { name: 'Name' }).fill('My Test Site');
+    await page
+      .getByRole('textbox', { name: 'Homepage' })
+      .fill('https://example.com/mytestsite');
+    await page.getByRole('button', { name: 'Create' }).click();
+
+    await expect(
+      page.getByText('Error: new row violates row-level security'),
+    ).toBeVisible();
+
+    await page.goto('/admin/sites');
+    await expect(page.getByText('0 sites')).toBeVisible();
   });
 });
