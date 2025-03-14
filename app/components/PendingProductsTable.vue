@@ -20,29 +20,38 @@ interface Sources {
   sources: ProductSource[];
 }
 
-// Get brands.
-const { data: brands }: { data: Ref<Tables<'products'>[]> } =
-  await useAsyncData(async () => {
-    const { data } = await client.from('brands').select();
-    return data != null ? data.map(objectToCamel) : [];
-  });
-
-// Get pending products.
 const {
   status,
-  data: pendingProducts,
-}: { data: Ref<Tables<'products'>[]>; status: Ref<AsyncDataRequestStatus> } =
-  await useAsyncData(async () => {
-    const { data } = await client.from('products').select();
-    return data != null ? data.map(objectToCamel) : [];
-  });
+  data,
+}: {
+  data: Ref<{
+    brands: Tables<'brands'>[];
+    pendingProducts: Tables<'products'>[];
+  }>;
+  status: Ref<AsyncDataRequestStatus>;
+} = await useAsyncData(async () => {
+  const [brands, pendingProducts] = await Promise.all([
+    client.from('brands').select(),
+    client.from('products').select(),
+  ]);
+
+  return {
+    brands: brands.data != null ? brands.data.map(objectToCamel) : [],
+    pendingProducts:
+      pendingProducts.data != null
+        ? pendingProducts.data.map(objectToCamel)
+        : [],
+  };
+});
+const brands = data.value.brands;
+const pendingProducts = data.value.pendingProducts;
 
 const columns: TableColumn<Tables<'products'>>[] = [
   {
     accessorKey: 'brandId',
     header: 'Brand',
     cell: ({ row }) => {
-      const brand = brands.value.find((b) => b.id === row.getValue('brandId'));
+      const brand = brands.find((b) => b.id === row.getValue('brandId'));
       return brand != null ? brand.name : '';
     },
   },
@@ -60,7 +69,7 @@ const columns: TableColumn<Tables<'products'>>[] = [
   <div>
     <UTable
       :columns="columns"
-      :data="pendingProducts != null ? pendingProducts : []"
+      :data="pendingProducts ?? []"
       :loading="status === 'pending'"
     >
       <template #sources-cell="{ row }">
