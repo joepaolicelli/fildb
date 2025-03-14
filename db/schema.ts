@@ -27,23 +27,63 @@ export const noteTypeEnum = pgEnum('note_type', [
   'official_description',
 ]);
 
-export const notes = pgTable('notes', {
-  id: uuid().primaryKey(),
-  attachedTo: text().notNull(),
-  note: text().notNull(),
-  type: noteTypeEnum(),
-  ...timestamps,
-});
+export const notes = pgTable(
+  'notes',
+  {
+    id: uuid().primaryKey(),
+    attachedTo: text().notNull(),
+    note: text().notNull(),
+    type: noteTypeEnum(),
+    ...timestamps,
+  },
+  () => [
+    pgPolicy('read for all', {
+      for: 'select',
+      to: 'public',
+      using: sql`true`,
+    }),
+    pgPolicy('insert access', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+    pgPolicy('update access', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+  ],
+);
 
-export const brands = pgTable('brands', {
-  id: uuid().primaryKey(),
-  name: text().notNull(),
-  brandCodes: text()
-    .array()
-    .notNull()
-    .default(sql`ARRAY[]::text[]`), // Blank array
-  ...timestamps,
-});
+export const brands = pgTable(
+  'brands',
+  {
+    id: uuid().primaryKey(),
+    name: text().notNull(),
+    brandCodes: text()
+      .array()
+      .notNull()
+      .default(sql`ARRAY[]::text[]`), // Blank array
+    ...timestamps,
+  },
+  () => [
+    pgPolicy('read for all', {
+      for: 'select',
+      to: 'public',
+      using: sql`true`,
+    }),
+    pgPolicy('insert access', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`(SELECT authorize('manage_brands'))`,
+    }),
+    pgPolicy('update access', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_brands'))`,
+    }),
+  ],
+);
 
 export const products = pgTable(
   'products',
@@ -58,16 +98,32 @@ export const products = pgTable(
     ...timestamps,
     publishedAt: timestamp(),
   },
-  (_t) => [
+  () => [
     pgPolicy('read for all', {
       for: 'select',
       to: 'public',
       using: sql`true`,
     }),
-    pgPolicy('update access', {
+    pgPolicy('insert pending items', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`((SELECT authorize('manage_pending_items')) AND products.published_at IS NULL)`,
+    }),
+    pgPolicy('insert published items', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+    pgPolicy('update pending items', {
       for: 'update',
       to: authenticatedRole,
-      using: sql`(SELECT authorize('manage_pending_items'))`,
+      using: sql`((SELECT authorize('manage_pending_items')) AND products.published_at IS NULL)`,
+      withCheck: sql`((SELECT authorize('manage_pending_items')) AND products.published_at IS NULL)`,
+    }),
+    pgPolicy('update published items', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
     }),
   ],
 );
@@ -88,22 +144,74 @@ export const packagedProducts = pgTable(
     ...timestamps,
     publishedAt: timestamp(),
   },
-  (_t) => [
+  () => [
     pgPolicy('read for all', {
       for: 'select',
       to: 'public',
       using: sql`true`,
     }),
+    pgPolicy('insert pending items', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`((SELECT authorize('manage_pending_items')) AND packaged_products.published_at IS NULL)`,
+    }),
+    pgPolicy('insert published items', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+    pgPolicy('update pending items', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`((SELECT authorize('manage_pending_items')) AND packaged_products.published_at IS NULL)`,
+      withCheck: sql`((SELECT authorize('manage_pending_items')) AND packaged_products.published_at IS NULL)`,
+    }),
+    pgPolicy('update published items', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
+    }),
   ],
 );
 
-export const saleUnits = pgTable('sale_units', {
-  id: uuid().primaryKey(),
-  name: text().notNull(),
-  shippingWeight: integer(), // In grams
-  ...timestamps,
-  publishedAt: timestamp(),
-});
+export const saleUnits = pgTable(
+  'sale_units',
+  {
+    id: uuid().primaryKey(),
+    name: text().notNull(),
+    shippingWeight: integer(), // In grams
+    ...timestamps,
+    publishedAt: timestamp(),
+  },
+  () => [
+    pgPolicy('read for all', {
+      for: 'select',
+      to: 'public',
+      using: sql`true`,
+    }),
+    pgPolicy('insert pending items', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`((SELECT authorize('manage_pending_items')) AND sale_units.published_at IS NULL)`,
+    }),
+    pgPolicy('insert published items', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+    pgPolicy('update pending items', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`((SELECT authorize('manage_pending_items')) AND sale_units.published_at IS NULL)`,
+      withCheck: sql`((SELECT authorize('manage_pending_items')) AND sale_units.published_at IS NULL)`,
+    }),
+    pgPolicy('update published items', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+  ],
+);
 
 export const saleUnitPackagedProducts = pgTable(
   'sale_unit_packaged_products',
@@ -122,6 +230,21 @@ export const saleUnitPackagedProducts = pgTable(
       columns: [table.packagedProductId],
       foreignColumns: [packagedProducts.id],
       name: 'sale_unit_packaged_products_id_fk',
+    }),
+    pgPolicy('read for all', {
+      for: 'select',
+      to: 'public',
+      using: sql`true`,
+    }),
+    pgPolicy('insert access', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+    pgPolicy('update access', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
     }),
   ],
 );
@@ -220,18 +343,38 @@ export const pages = pgTable(
   ],
 );
 
-export const pageSaleUnits = pgTable('page_sale_units', {
-  pageId: uuid()
-    .notNull()
-    .references(() => pages.id),
-  saleUnitId: uuid()
-    .notNull()
-    .references(() => saleUnits.id),
-  directUrl: text(),
-  matchOn: jsonb(),
-  ...timestamps,
-  publishedAt: timestamp(),
-});
+export const pageSaleUnits = pgTable(
+  'page_sale_units',
+  {
+    pageId: uuid()
+      .notNull()
+      .references(() => pages.id),
+    saleUnitId: uuid()
+      .notNull()
+      .references(() => saleUnits.id),
+    directUrl: text(),
+    matchOn: jsonb(),
+    ...timestamps,
+    publishedAt: timestamp(),
+  },
+  () => [
+    pgPolicy('read for all', {
+      for: 'select',
+      to: 'public',
+      using: sql`true`,
+    }),
+    pgPolicy('insert access', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+    pgPolicy('update access', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+  ],
+);
 
 // Relations
 /*export const productsRelations = relations(products, ({ many }) => ({
