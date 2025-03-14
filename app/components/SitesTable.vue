@@ -35,6 +35,9 @@ const columns: TableColumn<Tables<'sites'>>[] = [
 </script>
 <template>
   <div>
+    <div class="mt-3 flex w-full justify-end">
+      <div v-if="sites != null" class="text-sm">{{ sites.length }} sites</div>
+    </div>
     <UTable
       :columns="columns"
       :data="sites != null ? sites : []"
