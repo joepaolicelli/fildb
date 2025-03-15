@@ -6,3 +6,5 @@ export type ThemeColor =
   | 'info'
   | 'warning'
   | 'neutral';
+
+export type ScrapeStatus = 'pending' | 'active' | 'paused' | 'archived';
