@@ -8,6 +8,7 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxt/test-utils/module',
     '@pinia/nuxt',
+    '@pinia/colada-nuxt',
   ],
 
   css: ['~/assets/css/main.css'],

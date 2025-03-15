@@ -20,6 +20,8 @@
     "@nuxt/ui": "3.0.0-alpha.13",
     "@nuxthub/core": "^0.8.11",
     "@nuxtjs/supabase": "1.4.6",
+    "@pinia/colada": "^0.13.8",
+    "@pinia/colada-nuxt": "0.0.6",
     "@pinia/nuxt": "0.10.1",
     "drizzle-orm": "^0.39.3",
     "jwt-decode": "^4.0.0",
