@@ -15,15 +15,15 @@ const siteIdToName = (id: string) => {
   let siteName = '';
   if (sites.value.data) {
     const site = sites.value.data.find((s) => s.id === id);
-    siteName = site != null ? site.name : '';
+    siteName = site != null ? site.name : 'ERROR';
   }
   return siteName;
 };
-const scraperIdToName = (id: string) => {
+const scraperIdToName = (id: string | null) => {
   let scraperName = '';
-  if (scrapers.value.data) {
+  if (id != null && scrapers.value.data) {
     const scraper = scrapers.value.data.find((s) => s.id === id);
-    scraperName = scraper != null ? scraper.name : '';
+    scraperName = scraper != null ? scraper.name : 'ERROR';
   }
   return scraperName;
 };
