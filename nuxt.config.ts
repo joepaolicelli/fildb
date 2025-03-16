@@ -21,6 +21,7 @@ export default defineNuxtConfig({
     public: {
       // Can be overridden by NUXT_PUBLIC_HELLO_TEXT environment variable
       helloText: 'FilDB goes here.',
+      scrapeGroups: '',
       supabaseKey: '',
       supabaseUrl: '',
     },
