@@ -3,7 +3,7 @@ import type { TableColumn } from '@nuxt/ui';
 import type { AsyncDataRequestStatus } from '#app';
 import { objectToCamel } from 'ts-case-convert';
 
-import type { Tables } from '../../types/database.types';
+import type { Tables } from '~~/types/database.types';
 
 const client = useSupabaseClient();
 

@@ -54,6 +54,6 @@ export default defineNuxtConfig({
       callback: '/confirm',
       include: ['/admin(/*)?'],
     },
-    types: './types/database.types.ts',
+    types: '~~/types/database.types.ts',
   },
 });
