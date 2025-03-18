@@ -1,4 +1,4 @@
-import { getTableColumns, isNotNull, relations, sql } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import {
   boolean,
   foreignKey,
@@ -9,10 +9,9 @@ import {
   pgTable,
   text,
   timestamp,
-  unique,
   uuid,
 } from 'drizzle-orm/pg-core';
-import { authenticatedRole, authUsers } from 'drizzle-orm/supabase';
+import { authenticatedRole } from 'drizzle-orm/supabase';
 
 const timestamps = {
   createdAt: timestamp().defaultNow().notNull(),
