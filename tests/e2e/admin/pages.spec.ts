@@ -93,11 +93,12 @@ test.describe('Pages', () => {
     await page
       .getByRole('textbox', { name: 'Scrape URL' })
       .fill('https://example.com/testpage32/scrape');
-    await page.locator('#v-0-7-3').click();
+
+    await page.locator('[aria-haspopup="listbox"]').nth(0).click();
     await page.getByRole('option', { name: 'Test Site 1' }).click();
-    await page.locator('#v-0-7-4').click();
+    await page.locator('[aria-haspopup="listbox"]').nth(1).click();
     await page.getByText('Test Scraper').click();
-    await page.locator('#v-0-7-5').click();
+    await page.locator('[aria-haspopup="listbox"]').nth(2).click();
     await page.getByRole('option', { name: 'andromeda' }).click();
     await page.getByRole('combobox', { name: 'Scrape Status' }).click();
     await page.getByRole('option', { name: 'active' }).click();
@@ -128,11 +129,11 @@ test.describe('Pages', () => {
     await page
       .getByRole('textbox', { name: 'Scrape URL' })
       .fill('https://example.com/testpage32/scrape');
-    await page.locator('#v-0-7-3').click();
+    await page.locator('[aria-haspopup="listbox"]').nth(0).click();
     await page.getByRole('option', { name: 'Test Site 1' }).click();
-    await page.locator('#v-0-7-4').click();
+    await page.locator('[aria-haspopup="listbox"]').nth(1).click();
     await page.getByText('Test Scraper').click();
-    await page.locator('#v-0-7-5').click();
+    await page.locator('[aria-haspopup="listbox"]').nth(2).click();
     await page.getByRole('option', { name: 'andromeda' }).click();
     await page.getByRole('combobox', { name: 'Scrape Status' }).click();
     await page.getByRole('option', { name: 'active' }).click();
