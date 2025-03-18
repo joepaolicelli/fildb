@@ -21,6 +21,39 @@ const timestamps = {
 // See README for info on setting up appPermission and appRole enums, userRoles and rolePermissions tables, and related functions.
 
 /* === Data === */
+export const productTypeEnum = pgEnum('product_type', ['filament', 'printer']);
+
+export const tags = pgTable(
+  'tags',
+  {
+    id: uuid().primaryKey(),
+    name: text().notNull(),
+    description: text(),
+    productTypes: productTypeEnum()
+      .array()
+      .notNull()
+      .default(sql`ARRAY[]::product_type[]`), // Blank array,
+    ...timestamps,
+  },
+  () => [
+    pgPolicy('read for all', {
+      for: 'select',
+      to: 'public',
+      using: sql`true`,
+    }),
+    pgPolicy('insert access', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+    pgPolicy('update access', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+  ],
+);
+
 export const noteTypeEnum = pgEnum('note_type', [
   'general',
   'official_description',
@@ -83,8 +116,6 @@ export const brands = pgTable(
     }),
   ],
 );
-
-export const productTypeEnum = pgEnum('product_type', ['filament', 'printer']);
 
 export const products = pgTable(
   'products',
@@ -215,6 +246,35 @@ export const productGroupMemberships = pgTable(
       withCheck: sql`((SELECT authorize('manage_pending_items')) AND product_group_memberships.published_at IS NULL)`,
     }),
     pgPolicy('update published items', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+  ],
+);
+
+export const productTags = pgTable(
+  'product_tags',
+  {
+    productId: uuid()
+      .notNull()
+      .references(() => products.id),
+    tagId: uuid()
+      .notNull()
+      .references(() => tags.id),
+  },
+  () => [
+    pgPolicy('read for all', {
+      for: 'select',
+      to: 'public',
+      using: sql`true`,
+    }),
+    pgPolicy('insert access', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+    pgPolicy('update access', {
       for: 'update',
       to: authenticatedRole,
       using: sql`(SELECT authorize('manage_published_items'))`,
