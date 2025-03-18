@@ -58,6 +58,82 @@ export type Database = {
         }
         Relationships: []
       }
+      filament_variants: {
+        Row: {
+          created_at: string
+          dimension: string | null
+          filament_grams: number | null
+          is_spool_reusable: boolean | null
+          spool_grams: number | null
+          spool_type: string | null
+          updated_at: string
+          variant_id: string
+        }
+        Insert: {
+          created_at?: string
+          dimension?: string | null
+          filament_grams?: number | null
+          is_spool_reusable?: boolean | null
+          spool_grams?: number | null
+          spool_type?: string | null
+          updated_at?: string
+          variant_id: string
+        }
+        Update: {
+          created_at?: string
+          dimension?: string | null
+          filament_grams?: number | null
+          is_spool_reusable?: boolean | null
+          spool_grams?: number | null
+          spool_type?: string | null
+          updated_at?: string
+          variant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "filament_variants_variant_id_variants_id_fk"
+            columns: ["variant_id"]
+            isOneToOne: true
+            referencedRelation: "variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      filaments: {
+        Row: {
+          color_hex: string | null
+          color_name: string | null
+          created_at: string
+          material: string | null
+          product_id: string
+          updated_at: string
+        }
+        Insert: {
+          color_hex?: string | null
+          color_name?: string | null
+          created_at?: string
+          material?: string | null
+          product_id: string
+          updated_at?: string
+        }
+        Update: {
+          color_hex?: string | null
+          color_name?: string | null
+          created_at?: string
+          material?: string | null
+          product_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "filaments_product_id_products_id_fk"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notes: {
         Row: {
           attached_to: string
@@ -85,49 +161,14 @@ export type Database = {
         }
         Relationships: []
       }
-      packaged_products: {
-        Row: {
-          created_at: string
-          id: string
-          name: string
-          product_id: string
-          published_at: string | null
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id: string
-          name: string
-          product_id: string
-          published_at?: string | null
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          name?: string
-          product_id?: string
-          published_at?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "packaged_products_product_id_products_id_fk"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      page_sale_units: {
+      page_skus: {
         Row: {
           created_at: string
           direct_url: string | null
           match_on: Json | null
           page_id: string
           published_at: string | null
-          sale_unit_id: string
+          sku_id: string
           updated_at: string
         }
         Insert: {
@@ -136,7 +177,7 @@ export type Database = {
           match_on?: Json | null
           page_id: string
           published_at?: string | null
-          sale_unit_id: string
+          sku_id: string
           updated_at?: string
         }
         Update: {
@@ -145,22 +186,22 @@ export type Database = {
           match_on?: Json | null
           page_id?: string
           published_at?: string | null
-          sale_unit_id?: string
+          sku_id?: string
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "page_sale_units_page_id_pages_id_fk"
+            foreignKeyName: "page_skus_page_id_pages_id_fk"
             columns: ["page_id"]
             isOneToOne: false
             referencedRelation: "pages"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "page_sale_units_sale_unit_id_sale_units_id_fk"
-            columns: ["sale_unit_id"]
+            foreignKeyName: "page_skus_sku_id_skus_id_fk"
+            columns: ["sku_id"]
             isOneToOne: false
-            referencedRelation: "sale_units"
+            referencedRelation: "skus"
             referencedColumns: ["id"]
           },
         ]
@@ -219,6 +260,116 @@ export type Database = {
           },
         ]
       }
+      product_group_memberships: {
+        Row: {
+          created_at: string
+          product_group_id: string
+          product_id: string
+          published_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          product_group_id: string
+          product_id: string
+          published_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          product_group_id?: string
+          product_id?: string
+          published_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_group_memberships_product_group_id_product_groups_id_fk"
+            columns: ["product_group_id"]
+            isOneToOne: false
+            referencedRelation: "product_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_group_memberships_product_id_products_id_fk"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_groups: {
+        Row: {
+          brand_id: string | null
+          created_at: string
+          id: string
+          name: string
+          published_at: string | null
+          sources: Json | null
+          type: Database["public"]["Enums"]["product_group_type"] | null
+          updated_at: string
+        }
+        Insert: {
+          brand_id?: string | null
+          created_at?: string
+          id: string
+          name: string
+          published_at?: string | null
+          sources?: Json | null
+          type?: Database["public"]["Enums"]["product_group_type"] | null
+          updated_at?: string
+        }
+        Update: {
+          brand_id?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          published_at?: string | null
+          sources?: Json | null
+          type?: Database["public"]["Enums"]["product_group_type"] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_groups_brand_id_brands_id_fk"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_tags: {
+        Row: {
+          product_id: string
+          tag_id: string
+        }
+        Insert: {
+          product_id: string
+          tag_id: string
+        }
+        Update: {
+          product_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_tags_product_id_products_id_fk"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_tags_tag_id_tags_id_fk"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           brand_id: string
@@ -228,6 +379,7 @@ export type Database = {
           name: string
           published_at: string | null
           sources: Json | null
+          type: Database["public"]["Enums"]["product_type"] | null
           updated_at: string
         }
         Insert: {
@@ -238,6 +390,7 @@ export type Database = {
           name: string
           published_at?: string | null
           sources?: Json | null
+          type?: Database["public"]["Enums"]["product_type"] | null
           updated_at?: string
         }
         Update: {
@@ -248,6 +401,7 @@ export type Database = {
           name?: string
           published_at?: string | null
           sources?: Json | null
+          type?: Database["public"]["Enums"]["product_type"] | null
           updated_at?: string
         }
         Relationships: [
@@ -275,75 +429,6 @@ export type Database = {
           id?: string
           permission?: Database["public"]["Enums"]["app_permission"]
           role?: Database["public"]["Enums"]["app_role"]
-        }
-        Relationships: []
-      }
-      sale_unit_packaged_products: {
-        Row: {
-          created_at: string
-          packaged_product_id: string
-          published_at: string | null
-          quantity: number
-          sale_unit_id: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          packaged_product_id: string
-          published_at?: string | null
-          quantity: number
-          sale_unit_id: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          packaged_product_id?: string
-          published_at?: string | null
-          quantity?: number
-          sale_unit_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sale_unit_packaged_products_id_fk"
-            columns: ["packaged_product_id"]
-            isOneToOne: false
-            referencedRelation: "packaged_products"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sale_unit_packaged_products_sale_unit_id_sale_units_id_fk"
-            columns: ["sale_unit_id"]
-            isOneToOne: false
-            referencedRelation: "sale_units"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      sale_units: {
-        Row: {
-          created_at: string
-          id: string
-          name: string
-          published_at: string | null
-          shipping_weight: number | null
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id: string
-          name: string
-          published_at?: string | null
-          shipping_weight?: number | null
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          name?: string
-          published_at?: string | null
-          shipping_weight?: number | null
-          updated_at?: string
         }
         Relationships: []
       }
@@ -392,6 +477,60 @@ export type Database = {
         }
         Relationships: []
       }
+      skus: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          published_at: string | null
+          shipping_grams: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          name: string
+          published_at?: string | null
+          shipping_grams?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          published_at?: string | null
+          shipping_grams?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tags: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          product_types: Database["public"]["Enums"]["product_type"][]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id: string
+          name: string
+          product_types?: Database["public"]["Enums"]["product_type"][]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          product_types?: Database["public"]["Enums"]["product_type"][]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -409,6 +548,83 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      variant_skus: {
+        Row: {
+          created_at: string
+          published_at: string | null
+          quantity: number
+          sku_id: string
+          updated_at: string
+          variant_id: string
+        }
+        Insert: {
+          created_at?: string
+          published_at?: string | null
+          quantity: number
+          sku_id: string
+          updated_at?: string
+          variant_id: string
+        }
+        Update: {
+          created_at?: string
+          published_at?: string | null
+          quantity?: number
+          sku_id?: string
+          updated_at?: string
+          variant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "variant_skus_sku_id_skus_id_fk"
+            columns: ["sku_id"]
+            isOneToOne: false
+            referencedRelation: "skus"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "variant_skus_variant_id_variants_id_fk"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      variants: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          product_id: string
+          published_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          name: string
+          product_id: string
+          published_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          product_id?: string
+          published_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "variants_product_id_products_id_fk"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -434,8 +650,12 @@ export type Database = {
         | "manage_pages"
         | "manage_pending_items"
         | "manage_published_items"
+        | "manage_scrapers"
+        | "manage_sites"
       app_role: "admin" | "maintainer"
       note_type: "general" | "official_description"
+      product_group_type: "product_line"
+      product_type: "filament" | "printer"
       scrape_status: "pending" | "active" | "paused" | "archived"
     }
     CompositeTypes: {
