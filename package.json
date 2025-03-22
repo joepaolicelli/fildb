@@ -1,6 +1,11 @@
 {
   "name": "fildb",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joepaolicelli/fildb.git"
+  },
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "build": "nuxt build",
