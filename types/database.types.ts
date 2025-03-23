@@ -132,6 +132,13 @@ export type Database = {
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "filaments_product_id_products_id_fk"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "published_products_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       listings: {
@@ -297,6 +304,13 @@ export type Database = {
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "product_group_memberships_product_id_products_id_fk"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "published_products_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       product_groups: {
@@ -359,6 +373,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_tags_product_id_products_id_fk"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "published_products_view"
             referencedColumns: ["id"]
           },
           {
@@ -624,11 +645,77 @@ export type Database = {
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "variants_product_id_products_id_fk"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "published_products_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      pages_with_pending_listings_view: {
+        Row: {
+          page_id: string | null
+          pending_listings_count: number | null
+          url: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listings_page_id_pages_id_fk"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      published_products_view: {
+        Row: {
+          brand_id: string | null
+          created_at: string | null
+          fil_db_id: string | null
+          id: string | null
+          name: string | null
+          published_at: string | null
+          sources: Json | null
+          type: Database["public"]["Enums"]["product_type"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          brand_id?: string | null
+          created_at?: string | null
+          fil_db_id?: string | null
+          id?: string | null
+          name?: string | null
+          published_at?: string | null
+          sources?: Json | null
+          type?: Database["public"]["Enums"]["product_type"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          brand_id?: string | null
+          created_at?: string | null
+          fil_db_id?: string | null
+          id?: string | null
+          name?: string | null
+          published_at?: string | null
+          sources?: Json | null
+          type?: Database["public"]["Enums"]["product_type"] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_brand_id_brands_id_fk"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       authorize: {

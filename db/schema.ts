@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm';
+import { count, eq, isNotNull, isNull, sql } from 'drizzle-orm';
 import {
   boolean,
   integer,
@@ -6,11 +6,18 @@ import {
   pgEnum,
   pgPolicy,
   pgTable,
+  pgView,
+  QueryBuilder,
   text,
   timestamp,
   uuid,
 } from 'drizzle-orm/pg-core';
 import { authenticatedRole } from 'drizzle-orm/supabase';
+
+// This QueryBuilder is needed to prevent incorrect casing in views due to a
+// bug. See https://github.com/drizzle-team/drizzle-orm/issues/3332 and
+// https://github.com/drizzle-team/drizzle-orm/issues/4181
+const qb = new QueryBuilder({ casing: 'snake_case' });
 
 const timestamps = {
   createdAt: timestamp().defaultNow().notNull(),
@@ -161,10 +168,9 @@ export const products = pgTable(
   ],
 );
 
-// Bug means this is broken right now. https://github.com/drizzle-team/drizzle-orm/issues/3332
-/*export const publishedProductsView = pgView('published_products_view').as(
-  (qb) => qb.select().from(products).where(isNotNull(products.publishedAt))
-);*/
+export const publishedProductsView = pgView('published_products_view')
+  .with({ securityInvoker: true })
+  .as(qb.select().from(products).where(isNotNull(products.publishedAt)));
 
 export const productGroupTypeEnum = pgEnum('product_group_type', [
   'product_line',
@@ -534,10 +540,26 @@ export const listings = pgTable(
   ],
 );
 
-// Relations
-/*export const productsRelations = relations(products, ({ many }) => ({
-  packagedProducts: many(packagedProducts)
-}));*/
+// See https://github.com/drizzle-team/drizzle-orm/issues/2683 for why .as() is
+// needed on pendingListingsCount.
+export const pagesWithPendingListingsView = pgView(
+  'pages_with_pending_listings_view',
+)
+  .with({ securityInvoker: true })
+  .as(
+    qb
+      .select({
+        pageId: listings.pageId,
+        url: pages.url,
+        pendingListingsCount: count(listings.skuId).as(
+          'pending_listings_count',
+        ),
+      })
+      .from(listings)
+      .where(isNull(listings.publishedAt))
+      .leftJoin(pages, eq(listings.pageId, pages.id))
+      .groupBy(listings.pageId, pages.url),
+  );
 
 /* === Product and Variant Types === */
 export const filaments = pgTable(
