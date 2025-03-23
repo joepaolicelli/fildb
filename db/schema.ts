@@ -501,8 +501,8 @@ export const pages = pgTable(
   ],
 );
 
-export const pageSkus = pgTable(
-  'page_skus',
+export const listings = pgTable(
+  'listings',
   {
     pageId: uuid()
       .notNull()

@@ -134,34 +134,7 @@ export type Database = {
           },
         ]
       }
-      notes: {
-        Row: {
-          attached_to: string
-          created_at: string
-          id: string
-          note: string
-          type: Database["public"]["Enums"]["note_type"] | null
-          updated_at: string
-        }
-        Insert: {
-          attached_to: string
-          created_at?: string
-          id: string
-          note: string
-          type?: Database["public"]["Enums"]["note_type"] | null
-          updated_at?: string
-        }
-        Update: {
-          attached_to?: string
-          created_at?: string
-          id?: string
-          note?: string
-          type?: Database["public"]["Enums"]["note_type"] | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      page_skus: {
+      listings: {
         Row: {
           created_at: string
           direct_url: string | null
@@ -191,20 +164,47 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "page_skus_page_id_pages_id_fk"
+            foreignKeyName: "listings_page_id_pages_id_fk"
             columns: ["page_id"]
             isOneToOne: false
             referencedRelation: "pages"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "page_skus_sku_id_skus_id_fk"
+            foreignKeyName: "listings_sku_id_skus_id_fk"
             columns: ["sku_id"]
             isOneToOne: false
             referencedRelation: "skus"
             referencedColumns: ["id"]
           },
         ]
+      }
+      notes: {
+        Row: {
+          attached_to: string
+          created_at: string
+          id: string
+          note: string
+          type: Database["public"]["Enums"]["note_type"] | null
+          updated_at: string
+        }
+        Insert: {
+          attached_to: string
+          created_at?: string
+          id: string
+          note: string
+          type?: Database["public"]["Enums"]["note_type"] | null
+          updated_at?: string
+        }
+        Update: {
+          attached_to?: string
+          created_at?: string
+          id?: string
+          note?: string
+          type?: Database["public"]["Enums"]["note_type"] | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       pages: {
         Row: {
