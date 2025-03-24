@@ -145,6 +145,7 @@ export type Database = {
         Row: {
           created_at: string
           direct_url: string | null
+          id: string
           match_on: Json | null
           page_id: string
           published_at: string | null
@@ -154,6 +155,7 @@ export type Database = {
         Insert: {
           created_at?: string
           direct_url?: string | null
+          id: string
           match_on?: Json | null
           page_id: string
           published_at?: string | null
@@ -163,6 +165,7 @@ export type Database = {
         Update: {
           created_at?: string
           direct_url?: string | null
+          id?: string
           match_on?: Json | null
           page_id?: string
           published_at?: string | null

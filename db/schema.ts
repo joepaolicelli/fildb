@@ -510,6 +510,7 @@ export const pages = pgTable(
 export const listings = pgTable(
   'listings',
   {
+    id: uuid().primaryKey(),
     pageId: uuid()
       .notNull()
       .references(() => pages.id),
