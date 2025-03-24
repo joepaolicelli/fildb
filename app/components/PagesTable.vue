@@ -62,14 +62,7 @@ const columns: TableColumn<CamelCasedPropertiesDeep<Tables<'pages'>>>[] = [
 </script>
 <template>
   <div>
-    <Transition
-      enter-active-class="transition-all duration-1000"
-      enter-from-class="blur-md opacity-0"
-      enter-to-class="blur-none opacity-100"
-      leave-active-class="transition-all duration-1000"
-      leave-from-class="blur-none opacity-100"
-      leave-to-class="blur-md opacity-0"
-    >
+    <TableLoadingTransition>
       <div
         v-if="asyncStatus === 'loading'"
         class="my-5 flex flex-col items-center gap-4"
@@ -118,6 +111,6 @@ const columns: TableColumn<CamelCasedPropertiesDeep<Tables<'pages'>>>[] = [
           </template>
         </UTable>
       </div>
-    </Transition>
+    </TableLoadingTransition>
   </div>
 </template>
