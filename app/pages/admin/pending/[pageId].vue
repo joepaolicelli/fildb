@@ -3,6 +3,6 @@ definePageMeta({ layout: 'admin' });
 </script>
 <template>
   <div>
-    <PendingProductsTable />
+    <PendingItemsReviewer />
   </div>
 </template>
