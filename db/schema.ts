@@ -1,6 +1,7 @@
 import { count, eq, isNotNull, isNull, sql } from 'drizzle-orm';
 import {
   boolean,
+  check,
   integer,
   jsonb,
   pgEnum,
@@ -34,7 +35,7 @@ export const tags = pgTable(
   'tags',
   {
     id: uuid().primaryKey(),
-    name: text().notNull(),
+    name: text().unique().notNull(),
     description: text(),
     productTypes: productTypeEnum()
       .array()
@@ -98,7 +99,7 @@ export const brands = pgTable(
   'brands',
   {
     id: uuid().primaryKey(),
-    name: text().notNull(),
+    name: text().unique().notNull(),
     brandCodes: text()
       .array()
       .notNull()
@@ -129,6 +130,7 @@ export const products = pgTable(
   {
     id: uuid().primaryKey(),
     filDbId: text().unique(),
+    // name should be unique if published, check when publishing
     name: text().notNull(),
     brandId: uuid()
       .notNull()
@@ -138,7 +140,14 @@ export const products = pgTable(
     ...timestamps,
     publishedAt: timestamp(),
   },
-  () => [
+  (t) => [
+    check(
+      'fil_db_id_not_null_if_published_check',
+      sql`
+      (${t.publishedAt} IS NULL) OR
+      (${t.filDbId} IS NOT NULL)
+    `,
+    ),
     pgPolicy('read for all', {
       for: 'select',
       to: 'public',
@@ -180,6 +189,7 @@ export const productGroups = pgTable(
   'product_groups',
   {
     id: uuid().primaryKey(),
+    // name should be unique if published, check when publishing
     name: text().notNull(),
     brandId: uuid().references(() => brands.id), // If applicable (always?)
     type: productGroupTypeEnum(),
@@ -295,6 +305,7 @@ export const variants = pgTable(
     productId: uuid()
       .notNull()
       .references(() => products.id),
+    // name should be unique if published, check when publishing
     name: text().notNull(),
     ...timestamps,
     publishedAt: timestamp(),
@@ -333,6 +344,7 @@ export const skus = pgTable(
   'skus',
   {
     id: uuid().primaryKey(),
+    // name should be unique if published, check when publishing
     name: text().notNull(),
     shippingGrams: integer(),
     ...timestamps,
@@ -417,7 +429,7 @@ export const sites = pgTable(
   'sites',
   {
     id: uuid().primaryKey(),
-    name: text().notNull(),
+    name: text().unique().notNull(),
     homepage: text(),
     ...timestamps,
   },
@@ -444,7 +456,7 @@ export const scrapers = pgTable(
   'scrapers',
   {
     id: uuid().primaryKey(),
-    name: text().notNull(),
+    name: text().unique().notNull(),
     ...timestamps,
   },
   () => [
