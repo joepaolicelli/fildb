@@ -61,31 +61,31 @@ export type Database = {
       filament_variants: {
         Row: {
           created_at: string
-          dimension: string | null
+          dimension: Database["public"]["Enums"]["filament_dimension"] | null
           filament_grams: number | null
           is_spool_reusable: boolean | null
           spool_grams: number | null
-          spool_type: string | null
+          spool_type: Database["public"]["Enums"]["filament_spool_type"] | null
           updated_at: string
           variant_id: string
         }
         Insert: {
           created_at?: string
-          dimension?: string | null
+          dimension?: Database["public"]["Enums"]["filament_dimension"] | null
           filament_grams?: number | null
           is_spool_reusable?: boolean | null
           spool_grams?: number | null
-          spool_type?: string | null
+          spool_type?: Database["public"]["Enums"]["filament_spool_type"] | null
           updated_at?: string
           variant_id: string
         }
         Update: {
           created_at?: string
-          dimension?: string | null
+          dimension?: Database["public"]["Enums"]["filament_dimension"] | null
           filament_grams?: number | null
           is_spool_reusable?: boolean | null
           spool_grams?: number | null
-          spool_type?: string | null
+          spool_type?: Database["public"]["Enums"]["filament_spool_type"] | null
           updated_at?: string
           variant_id?: string
         }
@@ -743,6 +743,8 @@ export type Database = {
         | "manage_scrapers"
         | "manage_sites"
       app_role: "admin" | "maintainer"
+      filament_dimension: "1.75mm" | "2.85mm"
+      filament_spool_type: "plastic" | "cardboard" | "none"
       note_type: "general" | "official_description"
       product_group_type: "product_line"
       product_type: "filament" | "printer"

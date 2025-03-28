@@ -29,7 +29,8 @@ const timestamps = {
 // See README for info on setting up appPermission and appRole enums, userRoles and rolePermissions tables, and related functions.
 
 /* === Data === */
-export const productTypeEnum = pgEnum('product_type', ['filament', 'printer']);
+export const productTypes = ['filament', 'printer'] as const;
+export const productTypeEnum = pgEnum('product_type', productTypes);
 
 export const tags = pgTable(
   'tags',
@@ -62,10 +63,8 @@ export const tags = pgTable(
   ],
 );
 
-export const noteTypeEnum = pgEnum('note_type', [
-  'general',
-  'official_description',
-]);
+export const noteTypes = ['general', 'official_description'] as const;
+export const noteTypeEnum = pgEnum('note_type', noteTypes);
 
 export const notes = pgTable(
   'notes',
@@ -181,9 +180,11 @@ export const publishedProductsView = pgView('published_products_view')
   .with({ securityInvoker: true })
   .as(qb.select().from(products).where(isNotNull(products.publishedAt)));
 
-export const productGroupTypeEnum = pgEnum('product_group_type', [
-  'product_line',
-]);
+export const productGroupTypes = ['product_line'] as const;
+export const productGroupTypeEnum = pgEnum(
+  'product_group_type',
+  productGroupTypes,
+);
 
 export const productGroups = pgTable(
   'product_groups',
@@ -478,12 +479,13 @@ export const scrapers = pgTable(
   ],
 );
 
-export const scrapeStatus = pgEnum('scrape_status', [
+export const scrapeStatuses = [
   'pending',
   'active',
   'paused',
   'archived',
-]);
+] as const;
+export const scrapeStatus = pgEnum('scrape_status', scrapeStatuses);
 
 export const pages = pgTable(
   'pages',
@@ -605,15 +607,26 @@ export const filaments = pgTable(
   ],
 );
 
+export const filamentDimensions = ['1.75mm', '2.85mm'] as const;
+export const filamentDimensionEnum = pgEnum(
+  'filament_dimension',
+  filamentDimensions,
+);
+export const filamentSpoolTypes = ['plastic', 'cardboard', 'none'] as const;
+export const filamentSpoolTypeEnum = pgEnum(
+  'filament_spool_type',
+  filamentSpoolTypes,
+);
+
 export const filamentVariants = pgTable(
   'filament_variants',
   {
     variantId: uuid()
       .primaryKey()
       .references(() => variants.id),
-    dimension: text(), // "1.75mm", "2.85mm"
+    dimension: filamentDimensionEnum(),
     filamentGrams: integer(),
-    spoolType: text(), // "plastic", "cardboard", "none"
+    spoolType: filamentSpoolTypeEnum(),
     isSpoolReusable: boolean(),
     spoolGrams: integer(), // Without filament
     ...timestamps,
