@@ -21,24 +21,11 @@ export const usePendingListingsByPage = defineQuery(() => {
           .from('listings')
           .select(
             `
-            id,
-            page_id,
-            sku_id,
-            direct_url,
-            match_on,
-            created_at,
-            updated_at,
-            published_at,
+            *,
             skus(
-              id,
-              name,
-              shipping_grams,
-              created_at,
-              updated_at,
-              published_at,
+              *,
               variant_skus(
-                variant_id,
-                quantity
+                *
               )
             )
           `,

@@ -35,42 +35,13 @@ const skuFormSchema = z.object({
     }),
   ),
 });
-const variantFormSchema = z.object({
-  productId: z.string().uuid(),
-  name: z.string().min(1),
-  typeFields: z.union([
-    // Filament
-    z.object({
-      dimension: z.enum(['1.75mm', '2.85mm']),
-      filamentGrams: z.number().int(),
-      spoolType: z.enum(['plastic', 'cardboard', 'none']),
-      isSpoolReusable: z.boolean(),
-      spoolGrams: z.number().int(),
-    }),
-    z.object({}),
-  ]),
-});
-const productFormSchema = z.object({
-  filDbId: z.string().length(7),
-  name: z.string().min(1),
-  brandId: z.string().uuid(),
-  type: z.enum(['filament', 'printer']),
-  // tags
-  // notes
-  // productGroups
-  typeFields: z.union([
-    // Filament
-    z.object({
-      material: z.string(),
-      colorName: z.string(),
-      colorHex: z.string().min(6).max(8),
-    }),
-    z.object({}),
-  ]),
-});
 
 type PendingListing = {
-  listing: CamelCasedPropertiesDeep<Tables<'listings'>>;
+  listing: CamelCasedPropertiesDeep<Tables<'listings'>> & {
+    skus: CamelCasedPropertiesDeep<Tables<'skus'>> & {
+      variantSkus: CamelCasedPropertiesDeep<Tables<'variant_skus'>>[];
+    };
+  };
   form: z.infer<typeof listingFormSchema>;
   skuForm: z.infer<typeof skuFormSchema>;
 };
@@ -188,7 +159,12 @@ const columns: TableColumn<PendingListing>[] = [
               </UForm>
             </div>
             <div class="m-1 rounded-lg border-2 border-slate-400 p-2">
-              <div class="font-bold uppercase">Variant</div>
+              <div class="font-bold uppercase">Variants</div>
+              <VariantReviewer
+                v-for="v of row.original.listing.skus.variantSkus"
+                :key="v.variantId"
+                :variant-id="v.variantId"
+              />
             </div>
             <div class="m-1 rounded-lg border-2 border-slate-400 p-2">
               <div class="font-bold uppercase">Product</div>
