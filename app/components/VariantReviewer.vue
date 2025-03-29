@@ -31,11 +31,11 @@ const variantFormSchema = z.object({
 });
 
 const filamentVariantFormSchema = z.object({
-  dimension: z.enum(['[null]', ...filamentDimensions]),
+  dimension: z.enum([...filamentDimensions]).nullable(),
   filamentGrams: z.number().int(),
-  spoolType: z.enum(['[null]', ...filamentSpoolTypes]),
+  spoolType: z.enum([...filamentSpoolTypes]).nullable(),
   //isSpoolReusable: z.boolean().nullable(),
-  isSpoolReusable: z.enum(['[null]', 'yes', 'no']),
+  isSpoolReusable: z.enum(['yes', 'no']).nullable(),
   spoolGrams: z.number().int(),
 });
 
@@ -94,26 +94,16 @@ const form: Reactive<z.infer<typeof variantFormSchema>> = reactive({
 });
 const filamentTypeForm: Reactive<z.infer<typeof filamentVariantFormSchema>> =
   reactive({
-    dimension: '[null]',
+    dimension: null,
     filamentGrams: 0,
-    spoolType: '[null]',
-    isSpoolReusable: '[null]',
+    spoolType: null,
+    isSpoolReusable: null,
     spoolGrams: 0,
   });
 
-/* Nuxt UI RadioGroups are currently broken due to type issues. May use once
-fixed.
-const dimensionOptions = ref<RadioGroupItem[]>(['1.75mm', '2.85mm']);
-const spoolTypeOptions = ref<RadioGroupItem[]>([
-  'plastic',
-  'cardboard',
-  'none',
-]);
-const isSpoolReusableOptions = ref<RadioGroupItem[]>([true, false]);
-*/
-const dimensionOptions = ref(['[null]', ...filamentDimensions]);
-const spoolTypeOptions = ref(['[null]', ...filamentSpoolTypes]);
-const isSpoolReusableOptions = ref(['[null]', 'yes', 'no']);
+const dimensionOptions = ref([...filamentDimensions]);
+const spoolTypeOptions = ref([...filamentSpoolTypes]);
+const isSpoolReusableOptions = ref(['yes', 'no']);
 
 if (variant.value.data) {
   const v = variant.value.data;
@@ -122,9 +112,9 @@ if (variant.value.data) {
   form.name = v.name;
 
   if (v.filamentVariants) {
-    filamentTypeForm.dimension = v.filamentVariants.dimension ?? '[null]';
+    filamentTypeForm.dimension = v.filamentVariants.dimension ?? null;
     filamentTypeForm.filamentGrams = v.filamentVariants.filamentGrams ?? 0;
-    filamentTypeForm.spoolType = v.filamentVariants.spoolType ?? '[null]';
+    filamentTypeForm.spoolType = v.filamentVariants.spoolType ?? null;
     filamentTypeForm.spoolGrams = v.filamentVariants.spoolGrams ?? 0;
 
     switch (v.filamentVariants.isSpoolReusable) {
@@ -135,7 +125,7 @@ if (variant.value.data) {
         filamentTypeForm.isSpoolReusable = 'no';
         break;
       case null:
-        filamentTypeForm.isSpoolReusable = '[null]';
+        filamentTypeForm.isSpoolReusable = null;
     }
   }
 }
@@ -176,17 +166,10 @@ if (variant.value.data) {
         v-if="variant.data.products.type === 'filament'"
         :schema="filamentVariantFormSchema"
         :state="filamentTypeForm"
-        class="flex gap-2"
+        class="flex flex-wrap gap-x-4 gap-y-3"
       >
         <div class="flex flex-row">
-          <UFormField label="Dimension">
-            <USelect
-              v-model="filamentTypeForm.dimension"
-              :items="dimensionOptions"
-              class=""
-            />
-          </UFormField>
-          <!--<UFormField label="Dimension" class="self-end">
+          <UFormField label="Dimension" class="self-end">
             <URadioGroup
               v-model="filamentTypeForm.dimension"
               :items="dimensionOptions"
@@ -199,7 +182,7 @@ if (variant.value.data) {
             variant="outline"
             class="h-fit self-end"
             @click="filamentTypeForm.dimension = null"
-          />-->
+          />
         </div>
         <UFormField label="Filament Grams" hint="0 = null">
           <UInput
@@ -209,14 +192,7 @@ if (variant.value.data) {
           />
         </UFormField>
         <div class="flex flex-row">
-          <UFormField label="Spool Type">
-            <USelect
-              v-model="filamentTypeForm.spoolType"
-              :items="spoolTypeOptions"
-              class="min-w-40"
-            />
-          </UFormField>
-          <!--<UFormField label="Spool Type" class="self-end">
+          <UFormField label="Spool Type" class="self-end">
             <URadioGroup
               v-model="filamentTypeForm.spoolType"
               :items="spoolTypeOptions"
@@ -229,22 +205,23 @@ if (variant.value.data) {
             variant="outline"
             class="h-fit self-end"
             @click="filamentTypeForm.spoolType = null"
-          />-->
+          />
         </div>
         <div class="flex flex-row">
-          <UFormField label="Is Spool Reusable?">
-            <USelect
+          <UFormField label="Is Spool Reusable?" class="self-end">
+            <URadioGroup
               v-model="filamentTypeForm.isSpoolReusable"
               :items="isSpoolReusableOptions"
-              class="min-w-30"
+              orientation="horizontal"
+              class=""
             />
           </UFormField>
-          <!--<UButton
+          <UButton
             icon="solar:eraser-linear"
             variant="outline"
             class="h-fit self-end"
             @click="filamentTypeForm.isSpoolReusable = null"
-          />-->
+          />
         </div>
         <UFormField label="Spool Grams" hint="0 = null">
           <UInput
