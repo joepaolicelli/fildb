@@ -58,6 +58,19 @@ const productFormSchema = z.object({
   ]),
 });
 
+const form: Reactive<z.infer<typeof variantFormSchema>> = reactive({
+  productId: '',
+  name: '',
+});
+const filamentTypeForm: Reactive<z.infer<typeof filamentVariantFormSchema>> =
+  reactive({
+    dimension: null,
+    filamentGrams: 0,
+    spoolType: null,
+    isSpoolReusable: null,
+    spoolGrams: 0,
+  });
+
 const { state: variant, asyncStatus } = useQuery({
   key: ['variant', props.variantId],
   query: async () => {
@@ -88,47 +101,40 @@ const { state: variant, asyncStatus } = useQuery({
   },
 });
 
-const form: Reactive<z.infer<typeof variantFormSchema>> = reactive({
-  productId: '',
-  name: '',
-});
-const filamentTypeForm: Reactive<z.infer<typeof filamentVariantFormSchema>> =
-  reactive({
-    dimension: null,
-    filamentGrams: 0,
-    spoolType: null,
-    isSpoolReusable: null,
-    spoolGrams: 0,
-  });
+watch(
+  () => variant.value,
+  () => {
+    if (variant.value.data) {
+      const v = variant.value.data;
+
+      form.productId = v.productId;
+      form.name = v.name;
+
+      if (v.filamentVariants) {
+        filamentTypeForm.dimension = v.filamentVariants.dimension ?? null;
+        filamentTypeForm.filamentGrams = v.filamentVariants.filamentGrams ?? 0;
+        filamentTypeForm.spoolType = v.filamentVariants.spoolType ?? null;
+        filamentTypeForm.spoolGrams = v.filamentVariants.spoolGrams ?? 0;
+
+        switch (v.filamentVariants.isSpoolReusable) {
+          case true:
+            filamentTypeForm.isSpoolReusable = 'yes';
+            break;
+          case false:
+            filamentTypeForm.isSpoolReusable = 'no';
+            break;
+          case null:
+            filamentTypeForm.isSpoolReusable = null;
+        }
+      }
+    }
+  },
+  { immediate: true },
+);
 
 const dimensionOptions = ref([...filamentDimensions]);
 const spoolTypeOptions = ref([...filamentSpoolTypes]);
 const isSpoolReusableOptions = ref(['yes', 'no']);
-
-if (variant.value.data) {
-  const v = variant.value.data;
-
-  form.productId = v.productId;
-  form.name = v.name;
-
-  if (v.filamentVariants) {
-    filamentTypeForm.dimension = v.filamentVariants.dimension ?? null;
-    filamentTypeForm.filamentGrams = v.filamentVariants.filamentGrams ?? 0;
-    filamentTypeForm.spoolType = v.filamentVariants.spoolType ?? null;
-    filamentTypeForm.spoolGrams = v.filamentVariants.spoolGrams ?? 0;
-
-    switch (v.filamentVariants.isSpoolReusable) {
-      case true:
-        filamentTypeForm.isSpoolReusable = 'yes';
-        break;
-      case false:
-        filamentTypeForm.isSpoolReusable = 'no';
-        break;
-      case null:
-        filamentTypeForm.isSpoolReusable = null;
-    }
-  }
-}
 </script>
 <template>
   <div>
@@ -152,7 +158,11 @@ if (variant.value.data) {
       class="m-1 rounded-lg border-2 border-slate-400 p-2"
     >
       <div class="font-bold uppercase">Variant</div>
-      <UForm :schema="variantFormSchema" :state="form" class="flex gap-2">
+      <UForm
+        :schema="variantFormSchema"
+        :state="form"
+        class="flex flex-wrap gap-2"
+      >
         <UFormField label="Product ID">
           <UInput v-model="form.productId" class="min-w-80" />
         </UFormField>
@@ -232,6 +242,8 @@ if (variant.value.data) {
         </UFormField>
         <UButton type="submit" class="h-fit self-end">Update</UButton>
       </UForm>
+      <USeparator class="my-2" />
+      <ProductReviewer :product-id="variant.data.productId" />
     </div>
   </div>
 </template>
