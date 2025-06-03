@@ -5,12 +5,16 @@ import type { Reactive } from 'vue';
 import { z } from 'zod';
 
 import { productTypes } from '~~/db/schema';
+import { useBrands } from '~/queries/brands';
 
 const props = defineProps<{
   productId: string;
 }>();
 
 const client = useSupabaseClient();
+const toast = useToast();
+
+const { brands } = useBrands();
 
 interface ProductSource {
   url: string;
@@ -100,6 +104,84 @@ watch(
 );
 
 const typeOptions = ref(['[null]', ...productTypes]);
+
+const assignFilDbId = async () => {
+  try {
+    if (!brands.value.data) {
+      throw brands.value.error ?? new Error('Issue with brands.');
+    }
+    if (!product.value.data) {
+      throw product.value.error ?? new Error('Issue with product data.');
+    }
+    if (!product.value.data.type) {
+      throw new Error('Product type must be set before getting FilDB ID.');
+    }
+
+    const brand = brands.value.data.find(
+      (b) => b.id === product.value.data?.brandId,
+    );
+
+    if (!brand || brand.brandCodes.length === 0) {
+      throw new Error('Unable to find brand code.');
+    }
+
+    let idStart = brand.brandCodes[0]?.toUpperCase();
+
+    if (product.value.data.type !== 'filament') {
+      const productType = productTypesInfo.find(
+        (t) => t.type === product.value.data?.type,
+      );
+
+      if (!productType || productType.letter) {
+        throw new Error('Unable to find product type letter.');
+      }
+
+      idStart = `${idStart}${productType.letter.toUpperCase}`;
+    }
+
+    const resp = await client
+      .from('products')
+      .select('fil_db_id')
+      .eq('type', product.value.data.type)
+      .ilike('fil_db_id', `${idStart}%`)
+      .order('fil_db_id', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (resp.error) {
+      console.log(resp.error);
+      throw resp.error;
+    }
+
+    // Null means no matching rows found.
+    if (resp.data === null) {
+      form.filDbId =
+        product.value.data.type === 'filament'
+          ? `${idStart}0001`
+          : `${idStart}001`;
+    } else if (resp.data) {
+      const lastId = objectToCamel(resp.data).filDbId;
+
+      if (lastId) {
+        const newNum =
+          product.value.data.type === 'filament'
+            ? `${parseInt(lastId?.substring(3)) + 1}`.padStart(4, '0')
+            : `${parseInt(lastId?.substring(4)) + 1}`.padStart(3, '0');
+
+        form.filDbId = `${idStart}${newNum}`;
+      }
+    }
+  } catch (err) {
+    console.log(err);
+    toast.add({
+      title: 'Error getting new FilDB ID.',
+      description: err instanceof Error ? err.message : '',
+      icon: icons.error,
+      color: 'error',
+      duration: -1,
+    });
+  }
+};
 </script>
 <template>
   <div>
@@ -128,9 +210,17 @@ const typeOptions = ref(['[null]', ...productTypes]);
         :state="form"
         class="flex flex-wrap gap-2"
       >
-        <UFormField label="FilDB #">
-          <UInput v-model="form.filDbId" class="min-w-20" />
-        </UFormField>
+        <div class="flex flex-row">
+          <UFormField label="FilDB ID">
+            <UInput v-model="form.filDbId" class="min-w-20" />
+          </UFormField>
+          <UButton
+            icon="solar:add-square-linear"
+            variant="outline"
+            class="ml-1 h-fit self-end"
+            @click="assignFilDbId"
+          />
+        </div>
         <UFormField label="Name">
           <UInput v-model="form.name" class="min-w-80" />
         </UFormField>

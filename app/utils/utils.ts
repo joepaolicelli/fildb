@@ -13,3 +13,14 @@ export const icons = {
   error: 'solar:danger-circle-linear',
   success: 'solar:check-circle-linear',
 };
+
+export const productTypesInfo = [
+  {
+    type: 'filament',
+    letter: '0',
+  },
+  {
+    type: 'printer',
+    letter: 'p',
+  },
+];
