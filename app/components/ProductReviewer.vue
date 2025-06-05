@@ -211,7 +211,15 @@ const assignFilDbId = async () => {
         class="flex flex-wrap gap-2"
       >
         <div class="flex flex-row">
-          <UFormField label="FilDB ID">
+          <UFormField
+            label="FilDB ID"
+            :ui="
+              product.data.filDbId === form.filDbId ||
+              (product.data.filDbId == null && form.filDbId === '')
+                ? {}
+                : modFormFieldStyles
+            "
+          >
             <UInput v-model="form.filDbId" class="min-w-20" />
           </UFormField>
           <UButton
@@ -221,16 +229,32 @@ const assignFilDbId = async () => {
             @click="assignFilDbId"
           />
         </div>
-        <UFormField label="Name">
+        <UFormField
+          label="Name"
+          :ui="product.data.name === form.name ? {} : modFormFieldStyles"
+        >
           <UInput v-model="form.name" class="min-w-80" />
         </UFormField>
-        <UFormField label="Brand ID">
+        <UFormField
+          label="Brand ID"
+          :ui="product.data.brandId === form.brandId ? {} : modFormFieldStyles"
+        >
           <UInput v-model="form.brandId" class="min-w-80" />
         </UFormField>
-        <UFormField label="Type">
+        <UFormField
+          label="Type"
+          :ui="
+            product.data.type === form.type ||
+            (product.data.type == null && form.type === '[null]')
+              ? {}
+              : modFormFieldStyles
+          "
+        >
           <USelect v-model="form.type" :items="typeOptions" class="min-w-40" />
         </UFormField>
-        <UButton type="submit" class="h-fit self-end">Update</UButton>
+        <UButton type="submit" color="info" class="h-fit self-end"
+          >Update</UButton
+        >
       </UForm>
       <USeparator class="my-2" />
       <UForm
@@ -239,16 +263,46 @@ const assignFilDbId = async () => {
         :state="filamentTypeForm"
         class="flex flex-wrap gap-x-4 gap-y-3"
       >
-        <UFormField label="Material">
+        <UFormField
+          label="Material"
+          :ui="
+            product.data.filaments?.material === filamentTypeForm.material ||
+            (product.data.filaments?.material == null &&
+              filamentTypeForm.material === '')
+              ? {}
+              : modFormFieldStyles
+          "
+        >
           <UInput v-model="filamentTypeForm.material" class="min-w-40" />
         </UFormField>
-        <UFormField label="Color Name">
+        <UFormField
+          label="Color Name"
+          :ui="
+            product.data.filaments?.colorName === filamentTypeForm.colorName ||
+            (product.data.filaments?.colorName == null &&
+              filamentTypeForm.colorName === '')
+              ? {}
+              : modFormFieldStyles
+          "
+        >
           <UInput v-model="filamentTypeForm.colorName" class="min-w-40" />
         </UFormField>
-        <UFormField label="Color Hex" hint="No #">
+        <UFormField
+          label="Color Hex"
+          hint="No #"
+          :ui="
+            product.data.filaments?.colorHex === filamentTypeForm.colorHex ||
+            (product.data.filaments?.colorHex == null &&
+              filamentTypeForm.colorHex === '')
+              ? {}
+              : modFormFieldStyles
+          "
+        >
           <UInput v-model="filamentTypeForm.colorHex" class="min-w-20" />
         </UFormField>
-        <UButton type="submit" class="h-fit self-end">Update</UButton>
+        <UButton type="submit" color="info" class="h-fit self-end"
+          >Update</UButton
+        >
       </UForm>
     </div>
   </div>

@@ -24,3 +24,8 @@ export const productTypesInfo = [
     letter: 'p',
   },
 ];
+
+// Used when certain form fields are modified.
+export const modFormFieldStyles = {
+  label: 'text-blue-500 font-bold',
+};
