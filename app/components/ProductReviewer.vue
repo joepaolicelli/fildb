@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useQuery } from '@pinia/colada';
-import { objectToCamel } from 'ts-case-convert';
+import { useMutation, useQuery } from '@pinia/colada';
+import { objectToCamel, objectToSnake } from 'ts-case-convert';
 import type { Reactive } from 'vue';
 import { z } from 'zod';
 
@@ -11,7 +11,7 @@ const props = defineProps<{
   productId: string;
 }>();
 
-const client = useSupabaseClient();
+const supabase = useSupabaseClient();
 const toast = useToast();
 
 const { brands } = useBrands();
@@ -28,7 +28,7 @@ interface Sources {
 }
 
 const productFormSchema = z.object({
-  filDbId: z.string().length(7),
+  filDbId: z.union([z.string().length(7), z.string().length(0)]),
   name: z.string().min(1),
   brandId: z.string().uuid(),
   type: z.enum(['[null]', ...productTypes]),
@@ -36,12 +36,14 @@ const productFormSchema = z.object({
   // notes
   // productGroups
 });
+type ProductFormSchema = z.output<typeof productFormSchema>;
 
 const filamentFormSchema = z.object({
   material: z.string(),
   colorName: z.string(),
   colorHex: z.string().min(6).max(8),
 });
+type FilamentFormSchema = z.output<typeof filamentFormSchema>;
 
 const form: Reactive<z.infer<typeof productFormSchema>> = reactive({
   filDbId: '',
@@ -56,12 +58,16 @@ const filamentTypeForm: Reactive<z.infer<typeof filamentFormSchema>> =
     colorHex: '',
   });
 
-const { state: product, asyncStatus } = useQuery({
+const {
+  state: product,
+  asyncStatus,
+  refetch,
+} = useQuery({
   key: ['product', props.productId],
   query: async () => {
     // Lots of potential improvements. Postgres function? Buffering and/or
     // batching layer? Use Supabase realtime functionality?
-    const resp = await client
+    const resp = await supabase
       .from('products')
       .select(
         `
@@ -139,7 +145,7 @@ const assignFilDbId = async () => {
       idStart = `${idStart}${productType.letter.toUpperCase}`;
     }
 
-    const resp = await client
+    const resp = await supabase
       .from('products')
       .select('fil_db_id')
       .eq('type', product.value.data.type)
@@ -182,6 +188,49 @@ const assignFilDbId = async () => {
     });
   }
 };
+
+const productStatus: Reactive<{
+  sending: boolean;
+  showAlert: boolean;
+  alertText: string;
+  alertColor: ThemeColor;
+}> = reactive({
+  sending: false,
+  showAlert: false,
+  alertText: '',
+  alertColor: 'neutral',
+});
+
+const { mutate: updateProduct } = useMutation({
+  mutation: async (updates: ProductFormSchema) => {
+    productStatus.showAlert = false;
+    productStatus.sending = true;
+
+    const { error } = await supabase
+      .from('products')
+      .update(
+        objectToSnake({
+          filDbId: updates.filDbId === '' ? null : updates.filDbId,
+          name: updates.name,
+          brandId: updates.brandId,
+          type: updates.type === '[null]' ? null : updates.type,
+        }),
+      )
+      .eq('id', props.productId);
+    if (error) {
+      productStatus.alertColor = 'error';
+      productStatus.alertText = `Error: ${error.message}`;
+      productStatus.showAlert = true;
+      console.log(error);
+    } else {
+      productStatus.alertColor = 'success';
+      productStatus.alertText = 'Updated!';
+      productStatus.showAlert = true;
+    }
+    productStatus.sending = false;
+  },
+  onSettled: async () => refetch(),
+});
 </script>
 <template>
   <div>
@@ -205,17 +254,19 @@ const assignFilDbId = async () => {
       class="m-1 rounded-lg border-2 border-slate-400 p-2"
     >
       <div class="font-bold uppercase">Product</div>
+      <!-- Product Form -->
       <UForm
         :schema="productFormSchema"
         :state="form"
         class="flex flex-wrap gap-2"
+        @submit="() => updateProduct(form)"
       >
         <div class="flex flex-row">
           <UFormField
             label="FilDB ID"
+            name="filDbId"
             :ui="
-              product.data.filDbId === form.filDbId ||
-              (product.data.filDbId == null && form.filDbId === '')
+              textFormFieldEquiv(product.data.filDbId, form.filDbId)
                 ? {}
                 : modFormFieldStyles
             "
@@ -231,32 +282,51 @@ const assignFilDbId = async () => {
         </div>
         <UFormField
           label="Name"
+          name="name"
           :ui="product.data.name === form.name ? {} : modFormFieldStyles"
         >
           <UInput v-model="form.name" class="min-w-80" />
         </UFormField>
         <UFormField
           label="Brand ID"
+          name="brandId"
           :ui="product.data.brandId === form.brandId ? {} : modFormFieldStyles"
         >
           <UInput v-model="form.brandId" class="min-w-80" />
         </UFormField>
         <UFormField
           label="Type"
+          name="type"
           :ui="
-            product.data.type === form.type ||
-            (product.data.type == null && form.type === '[null]')
+            enumFormFieldEquiv(product.data.type, form.type)
               ? {}
               : modFormFieldStyles
           "
         >
           <USelect v-model="form.type" :items="typeOptions" class="min-w-40" />
         </UFormField>
-        <UButton type="submit" color="info" class="h-fit self-end"
+        <UButton
+          type="submit"
+          color="info"
+          :loading="productStatus.sending"
+          class="h-fit self-end"
           >Update</UButton
         >
+        <UAlert
+          v-if="productStatus.showAlert"
+          :color="productStatus.alertColor"
+          variant="subtle"
+          :title="productStatus.alertText"
+          :icon="
+            productStatus.alertColor === 'success'
+              ? icons.success
+              : icons.error
+          "
+          class="h-fit w-fit self-center"
+        />
       </UForm>
       <USeparator class="my-2" />
+      <!-- Filament Form -->
       <UForm
         v-if="product.data.type === 'filament'"
         :schema="filamentFormSchema"

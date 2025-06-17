@@ -29,3 +29,17 @@ export const productTypesInfo = [
 export const modFormFieldStyles = {
   label: 'text-blue-500 font-bold',
 };
+
+export const textFormFieldEquiv = (
+  trueVal: string | null,
+  formVal: string,
+) => {
+  return trueVal === formVal || (trueVal == null && formVal === '');
+};
+
+export const enumFormFieldEquiv = (
+  trueVal: string | null,
+  formVal: string,
+) => {
+  return trueVal === formVal || (trueVal == null && formVal === '[null]');
+};
