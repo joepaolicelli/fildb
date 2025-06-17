@@ -1,6 +1,6 @@
 # FilDB
 
-FilDB is a database of filaments and other products for 3D printing. It is currently under development, with the initial launch planned for early April 2025.
+FilDB is a database of filaments and other products for 3D printing. It is currently under development.
 
 The technologies used are a combination of those I was familiar with and those I wanted to try out and experiment with. The project as a whole is also an experiment to learn about the challenges and potential of product and price tracking on the modern internet.
 
