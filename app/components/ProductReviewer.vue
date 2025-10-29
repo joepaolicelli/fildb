@@ -38,25 +38,12 @@ const productFormSchema = z.object({
 });
 type ProductFormSchema = z.output<typeof productFormSchema>;
 
-const filamentFormSchema = z.object({
-  material: z.string(),
-  colorName: z.string(),
-  colorHex: z.string().min(6).max(8),
-});
-type FilamentFormSchema = z.output<typeof filamentFormSchema>;
-
 const form: Reactive<z.infer<typeof productFormSchema>> = reactive({
   filDbId: '',
   name: '',
   brandId: '',
   type: '[null]',
 });
-const filamentTypeForm: Reactive<z.infer<typeof filamentFormSchema>> =
-  reactive({
-    material: '',
-    colorName: '',
-    colorHex: '',
-  });
 
 const {
   state: product,
@@ -98,12 +85,6 @@ watch(
       form.name = v.name;
       form.brandId = v.brandId;
       form.type = v.type ?? '[null]';
-
-      if (v.filaments) {
-        filamentTypeForm.material = v.filaments.material ?? '';
-        filamentTypeForm.colorName = v.filaments.colorName ?? '';
-        filamentTypeForm.colorHex = v.filaments.colorHex ?? '';
-      }
     }
   },
   { immediate: true },
@@ -322,58 +303,15 @@ const { mutate: updateProduct } = useMutation({
               ? icons.success
               : icons.error
           "
-          class="h-fit w-fit self-center"
+          class="h-fit w-fit self-end py-2"
         />
       </UForm>
       <USeparator class="my-2" />
       <!-- Filament Form -->
-      <UForm
-        v-if="product.data.type === 'filament'"
-        :schema="filamentFormSchema"
-        :state="filamentTypeForm"
-        class="flex flex-wrap gap-x-4 gap-y-3"
-      >
-        <UFormField
-          label="Material"
-          :ui="
-            product.data.filaments?.material === filamentTypeForm.material ||
-            (product.data.filaments?.material == null &&
-              filamentTypeForm.material === '')
-              ? {}
-              : modFormFieldStyles
-          "
-        >
-          <UInput v-model="filamentTypeForm.material" class="min-w-40" />
-        </UFormField>
-        <UFormField
-          label="Color Name"
-          :ui="
-            product.data.filaments?.colorName === filamentTypeForm.colorName ||
-            (product.data.filaments?.colorName == null &&
-              filamentTypeForm.colorName === '')
-              ? {}
-              : modFormFieldStyles
-          "
-        >
-          <UInput v-model="filamentTypeForm.colorName" class="min-w-40" />
-        </UFormField>
-        <UFormField
-          label="Color Hex"
-          hint="No #"
-          :ui="
-            product.data.filaments?.colorHex === filamentTypeForm.colorHex ||
-            (product.data.filaments?.colorHex == null &&
-              filamentTypeForm.colorHex === '')
-              ? {}
-              : modFormFieldStyles
-          "
-        >
-          <UInput v-model="filamentTypeForm.colorHex" class="min-w-20" />
-        </UFormField>
-        <UButton type="submit" color="info" class="h-fit self-end"
-          >Update</UButton
-        >
-      </UForm>
+      <FilamentProductForm
+        v-if="product.data.type === 'filament' && product.data.filaments"
+        :filament="product.data.filaments"
+      />
     </div>
   </div>
 </template>
