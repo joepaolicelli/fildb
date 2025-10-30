@@ -1,0 +1,46 @@
+diff --git a/dist/module/cookies.js b/dist/module/cookies.js
+index 487532131006d9d64707afb238cd3538053817d1..b13e300724aa689d3343ab81d4b19f248b1073ff 100644
+--- a/dist/module/cookies.js
++++ b/dist/module/cookies.js
+@@ -1,4 +1,5 @@
+-import { parse, serialize } from "cookie";
++import * as cookie from "cookie";
++const { parse, serialize } = cookie;
+ import { DEFAULT_COOKIE_OPTIONS, combineChunks, createChunks, isBrowser, isChunkLike, stringFromBase64URL, stringToBase64URL, } from "./utils";
+ const BASE64_PREFIX = "base64-";
+ /**
+diff --git a/dist/module/utils/helpers.js b/dist/module/utils/helpers.js
+index dbdf5ef1715545f0d97b448055a70030c31a8400..02f54facf25ccbd2eb0d8a72b1dbb8cc70e2ce7e 100644
+--- a/dist/module/utils/helpers.js
++++ b/dist/module/utils/helpers.js
+@@ -1,4 +1,5 @@
+-import { parse as cookieParse, serialize as cookieSerialize } from "cookie";
++import * as cookie from "cookie";
++const { parse: cookieParse, serialize: cookieSerialize } = cookie;
+ /**
+  * @deprecated Since v0.4.0: Please use {@link parseCookieHeader}. `parse` will
+  * not be available for import starting v1.0.0 of `@supabase/ssr`.
+diff --git a/src/cookies.ts b/src/cookies.ts
+index 71a94a3695a45aa5b3a4893b289c5dfa533b1d83..a434b8e40e34c238a4d8da65df496e2dc70dba16 100644
+--- a/src/cookies.ts
++++ b/src/cookies.ts
+@@ -1,4 +1,5 @@
+-import { parse, serialize } from "cookie";
++import * as cookie from "cookie";
++const { parse, serialize } = cookie;
+ 
+ import {
+   DEFAULT_COOKIE_OPTIONS,
+diff --git a/src/utils/helpers.ts b/src/utils/helpers.ts
+index 92ff9934b0fc9492fa2d10315600f3295164ae85..54c63003ff2749dcec28b6fdcc1cf812883fdf44 100644
+--- a/src/utils/helpers.ts
++++ b/src/utils/helpers.ts
+@@ -1,5 +1,7 @@
+ import type { SerializeOptions } from "cookie";
+-import { parse as cookieParse, serialize as cookieSerialize } from "cookie";
++import * as cookie from "cookie";
++const { parse: cookieParse, serialize: cookieSerialize } = cookie;
++//import { parse as cookieParse, serialize as cookieSerialize } from "cookie";
+ 
+ /**
+  * @deprecated Since v0.4.0: Please use {@link parseCookieHeader}. `parse` will
