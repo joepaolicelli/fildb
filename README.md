@@ -185,6 +185,7 @@ ALTER TYPE app_role ADD VALUE 'new_app_role';
 ### Workarounds Used During Development
 
 - [Issue](https://github.com/nuxt/ui/issues/3139) when setting up Nuxt UI, [had to install tailwind packages to dev dependencies as described here](https://github.com/nuxt-modules/tailwindcss/issues/942#issuecomment-2669947831).
+- Nuxt is pinned to v4.1.3 because [this issue](https://github.com/supabase/supabase-js/issues/1804) leads to errors resolving sub-dependencies in v4.2.
 
 ## Testing
 
