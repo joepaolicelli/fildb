@@ -262,8 +262,13 @@ const { mutate: publishProduct } = useMutation({
     <div
       v-else-if="product.data"
       class="m-1 rounded-lg border-2 border-slate-400 p-2"
+      :class="{ 'bg-slate-100': product.data.publishedAt !== null }"
     >
-      <div class="font-bold uppercase">Product</div>
+      <div class="font-bold uppercase">
+        Product<template v-if="product.data.publishedAt !== null">
+          (Published)</template
+        >
+      </div>
       <!-- Product Form -->
       <UForm
         :schema="productFormSchema"
