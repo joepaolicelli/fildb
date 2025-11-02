@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useMutation, useQuery } from '@pinia/colada';
+import { DateTime } from 'luxon';
 import { objectToCamel, objectToSnake } from 'ts-case-convert';
 import type { Reactive } from 'vue';
 import { z } from 'zod';
@@ -212,6 +213,34 @@ const { mutate: updateProduct } = useMutation({
   },
   onSettled: async () => refetch(),
 });
+
+const { mutate: publishProduct } = useMutation({
+  mutation: async () => {
+    productStatus.showAlert = false;
+    productStatus.sending = true;
+
+    const { error } = await supabase
+      .from('products')
+      .update(
+        objectToSnake({
+          publishedAt: DateTime.now().toString(),
+        }),
+      )
+      .eq('id', props.productId);
+    if (error) {
+      productStatus.alertColor = 'error';
+      productStatus.alertText = `Error: ${error.message}`;
+      productStatus.showAlert = true;
+      console.log(error);
+    } else {
+      productStatus.alertColor = 'success';
+      productStatus.alertText = 'Published!';
+      productStatus.showAlert = true;
+    }
+    productStatus.sending = false;
+  },
+  onSettled: async () => refetch(),
+});
 </script>
 <template>
   <div>
@@ -292,6 +321,13 @@ const { mutate: updateProduct } = useMutation({
           :loading="productStatus.sending"
           class="h-fit self-end"
           >Update</UButton
+        >
+        <UButton
+          color="error"
+          :loading="productStatus.sending"
+          class="h-fit self-end"
+          @click="() => publishProduct()"
+          >Publish</UButton
         >
         <UAlert
           v-if="productStatus.showAlert"
