@@ -13,7 +13,7 @@ export const usePagesWithPendingListings = defineQuery(() => {
         const resp = await client
           .from('pages_with_pending_listings_view')
           .select()
-          .order('created_at', { ascending: false })
+          .order('pending_listings_count', { ascending: false })
           .range(rangeStart, rangeStart + 999); // inclusive
 
         if (resp.error) {
