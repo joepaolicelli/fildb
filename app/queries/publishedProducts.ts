@@ -7,7 +7,7 @@ export const usePublishedProducts = defineQuery(() => {
   const page = useState<number>('productsQueryPage', () => 1);
 
   const { state, ...rest } = useQuery({
-    key: () => ['products', page.value],
+    key: () => ['publishedProducts', page.value],
     query: async () => {
       const rangeStart = (page.value - 1) * 50;
       const resp = await client
