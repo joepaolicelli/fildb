@@ -5,6 +5,10 @@ const navItems = ref([
     to: '/',
   },
   {
+    label: 'Filaments',
+    to: '/filaments',
+  },
+  {
     label: 'Admin',
     to: '/admin',
   },
