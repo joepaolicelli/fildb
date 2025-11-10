@@ -8,7 +8,7 @@ import {
   prepDb,
 } from '../util';
 
-const supabase = createTestSupabaseClient();
+const supabase = await createTestSupabaseClient();
 const testUsers = getTestUsers();
 
 test.beforeEach(async () => {

@@ -195,11 +195,9 @@ ALTER TYPE app_role ADD VALUE 'new_app_role';
 
 ### E2E
 
-`pnpm e2e`
+End-to-end tests use [Playwright](https://playwright.dev/). A test Supabase db should be setup as described below.
 
-End-to-end tests use [Playwright](https://playwright.dev/).
-
-#### E2E Environment Setup
+#### E2E Supabase Setup
 
 Tests are run against the preview environment deployments on NuxtHub, so there's no extra setup there. The preview environment should be configured to use a test Supabase db, which should be configured with:
 
@@ -211,25 +209,42 @@ Tests are run against the preview environment deployments on NuxtHub, so there's
 
 For now, until [this](https://github.com/drizzle-team/drizzle-orm/discussions/3405) is available, temporarily change the db url in `drizzle.config.ts`.
 
-##### Test Users
+##### Test Permissions & Users
 
-Create the users as listed in tests/e2e/util.ts:getTestUsers.
+Use [the SQL above](#setting-up-roles-and-permissions) to insert permissions into the `role_permissions` table.
+
+Create the users as listed in tests/e2e/util.ts:getTestUsers, changing the userIds in that file to match those assigned by Supabase. Then, in the `user_roles` table, assign each user the role specified in their (fake) email address.
 
 ##### Clear Public Schema Function
 
-Create a new function named `clear_public_schema` in the test Supabase, in the public schema, changing language to `sql`.
+Create a new function named `clear_public_schema` in the test Supabase, in the public schema, changing language to `sql`, and selecting "SECURITY DEFINER" as the security type.
 
 ```sql
 do $$ declare
     r record;
 begin
-    for r in (select tablename from pg_tables where schemaname = 'public') loop
+    for r in (
+      select tablename
+      from pg_tables
+      where schemaname = 'public'
+        and tablename not in ('role_permissions', 'user_roles')
+      ) loop
         execute 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' CASCADE';
     end loop;
 end $$;
 ```
 
 (This only clears table rows, so it won't delete itself or the enums.)
+
+#### Recommendations for Running E2E Tests Locally
+
+- Use the testing tab in VS code, with the Playright extension.
+- Change the `NUXT_PUBLIC_SUPABASE_*` and `SUPABASE_PG_URL` variables in `.env` to point to the test Supabase. Set the `TEST_*` variables.
+
+#### E2E GitHub Action Workflow
+
+- The workflow is at `.github/workflows/playwright.yml`
+  - Make sure to set as repository secrets the secrets referenced in the `.env` section of the workflow file.
 
 ## License
 

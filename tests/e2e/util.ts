@@ -1,38 +1,31 @@
 import type { Page } from '@playwright/test';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { objectToSnake } from 'ts-case-convert';
 
-export function createTestSupabaseClient() {
-  return createClient(
+export async function createTestSupabaseClient() {
+  const testUsers = getTestUsers();
+
+  const supabase = createClient(
     process.env.TEST_SUPABASE_URL ?? '',
-    process.env.TEST_SUPABASE_SECRET_KEY ?? 'placeholder',
+    process.env.TEST_SUPABASE_KEY ?? '',
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+        detectSessionInUrl: false,
+      },
+    },
   );
+  await supabase.auth.signInWithPassword({
+    email: testUsers.testAdmin1.email,
+    password: testUsers.testAdmin1.password,
+  });
+
+  return supabase;
 }
 
 export async function prepDb(supabase: SupabaseClient) {
   // Clear DB.
   await supabase.rpc('clear_public_schema');
-
-  // Setup permissions and roles in DB.
-  const testUsers = getTestUsers();
-  await supabase.from('role_permissions').insert([
-    { role: 'admin', permission: 'manage_brands' },
-    { role: 'admin', permission: 'manage_pages' },
-    { role: 'admin', permission: 'manage_pending_items' },
-    { role: 'admin', permission: 'manage_published_items' },
-    { role: 'admin', permission: 'manage_scrapers' },
-    { role: 'admin', permission: 'manage_sites' },
-    { role: 'maintainer', permission: 'manage_pages' },
-    { role: 'maintainer', permission: 'manage_pending_items' },
-    { role: 'maintainer', permission: 'manage_published_items' },
-  ]);
-  await supabase.from('user_roles').insert(
-    [
-      { userId: testUsers.testAdmin1.userId, role: 'admin' },
-      { userId: testUsers.testMaintainer1.userId, role: 'maintainer' },
-      { userId: testUsers.testMaintainer2.userId, role: 'maintainer' },
-    ].map(objectToSnake),
-  );
 }
 
 export type TestUserInfo = {

@@ -12,7 +12,7 @@ jobs:
     env:
       PLAYWRIGHT_BASE_URL: ${{ inputs.deployment-url }}
       TEST_SUPABASE_URL: ${{ secrets.TEST_SUPABASE_URL }}
-      TEST_SUPABASE_SECRET_KEY: ${{ secrets.TEST_SUPABASE_SECRET_KEY }}
+      TEST_SUPABASE_KEY: ${{ secrets.TEST_SUPABASE_KEY }}
       TEST_ADMIN_1_PW: ${{ secrets.TEST_ADMIN_1_PW }}
       TEST_MAINTAINER_1_PW: ${{ secrets.TEST_MAINTAINER_1_PW }}
       TEST_MAINTAINER_2_PW: ${{ secrets.TEST_MAINTAINER_2_PW }}

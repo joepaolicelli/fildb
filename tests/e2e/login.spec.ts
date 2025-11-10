@@ -3,7 +3,7 @@ import { objectToSnake } from 'ts-case-convert';
 
 import { createTestSupabaseClient, getTestUsers, prepDb } from './util';
 
-const supabase = createTestSupabaseClient();
+const supabase = await createTestSupabaseClient();
 const testUsers = getTestUsers();
 
 test.beforeAll(async () => {
@@ -15,7 +15,7 @@ test.describe('Login Form', () => {
     await page.goto('/login');
     await expect(page.getByRole('textbox', { name: 'Email' })).toBeVisible();
     await expect(
-      page.getByRole('textbox', { name: 'Password' })
+      page.getByRole('textbox', { name: 'Password' }),
     ).toBeVisible();
     await expect(page.getByRole('button', { name: 'Log In' })).toBeVisible();
   });

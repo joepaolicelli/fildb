@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 import { createTestSupabaseClient, prepDb } from '../util';
 
-const supabase = createTestSupabaseClient();
+const supabase = await createTestSupabaseClient();
 
 test.beforeAll(async () => {
   await prepDb(supabase);
