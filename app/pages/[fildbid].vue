@@ -45,7 +45,7 @@ const { state: product, asyncStatus } = useQuery({
 });
 </script>
 <template>
-  <div>
+  <div class="mx-2 my-2">
     <div
       v-if="asyncStatus === 'loading'"
       class="my-5 flex flex-col items-center gap-4"
@@ -62,13 +62,29 @@ const { state: product, asyncStatus } = useQuery({
       />
     </div>
     <div v-else-if="product.data">
-      <div class="font-bold uppercase">
-        {{ product.data.filDbId }} {{ product.data.name }}
+      <div>
+        <div class="text-5xl font-bold text-zinc-400 uppercase">
+          {{ product.data.filDbId }}
+        </div>
+        <div class="text-2xl">
+          {{ product.data.name }}
+        </div>
       </div>
-      <div v-if="product.data.filaments">
-        {{ product.data.filaments.material }}
-        {{ product.data.filaments.colorName }}
-        {{ product.data.filaments.colorHex }}
+      <div class="mt-2 grid grid-cols-1 lg:grid-cols-2">
+        <div class="flex flex-col">
+          <div>
+            <div v-if="product.data.filaments">
+              {{ product.data.filaments.material }}
+              {{ product.data.filaments.colorName }}
+              {{ product.data.filaments.colorHex }}
+            </div>
+          </div>
+          <div>BUILDS</div>
+        </div>
+        <div class="flex flex-col">
+          <div>PRICE HISTORY</div>
+          <div>SWATCHES</div>
+        </div>
       </div>
     </div>
     <div v-else>Not found!</div>
