@@ -47,22 +47,25 @@ type PendingListing = {
 };
 
 const pendingListings: Ref<PendingListing[]> = ref([]);
-if (listings.value.data) {
-  pendingListings.value = listings.value.data.map((l) => {
-    return {
-      listing: l,
-      form: {
-        skuId: l.skuId ?? '',
-        directUrl: l.directUrl ?? '',
-      },
-      skuForm: {
-        name: l.skus.name ?? '',
-        shippingGrams: l.skus.shippingGrams ?? 0,
-        variants: l.skus.variantSkus,
-      },
-    };
-  });
-}
+
+watch(listings, (loadedListings) => {
+  if (loadedListings.data) {
+    pendingListings.value = loadedListings.data.map((l) => {
+      return {
+        listing: l,
+        form: {
+          skuId: l.skuId ?? '',
+          directUrl: l.directUrl ?? '',
+        },
+        skuForm: {
+          name: l.skus.name ?? '',
+          shippingGrams: l.skus.shippingGrams ?? 0,
+          variants: l.skus.variantSkus,
+        },
+      };
+    });
+  }
+});
 
 const columns: TableColumn<PendingListing>[] = [
   {
