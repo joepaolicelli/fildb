@@ -8,6 +8,8 @@ import type { Tables } from '~~/types/database.types';
 // TODO pagination, product type = filament
 const { products, asyncStatus } = usePublishedProducts();
 
+const ULink = resolveComponent('ULink');
+
 // Set table columns.
 const columns: TableColumn<
   CamelCasedPropertiesDeep<Tables<'published_products_view'>>
@@ -15,6 +17,8 @@ const columns: TableColumn<
   {
     accessorKey: 'filDbId',
     header: 'FilDB #',
+    cell: ({ row }) =>
+      h(ULink, { to: `/${row.getValue('filDbId')}` }, row.getValue('filDbId')),
   },
   {
     accessorKey: 'name',
