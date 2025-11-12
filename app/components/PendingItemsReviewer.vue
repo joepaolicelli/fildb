@@ -169,9 +169,6 @@ const columns: TableColumn<PendingListing>[] = [
                 :variant-id="v.variantId"
               />
             </div>
-            <div class="m-1 rounded-lg border-2 border-slate-400 p-2">
-              <div class="font-bold uppercase">Product</div>
-            </div>
           </template>
         </UTable>
       </div>
