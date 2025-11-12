@@ -52,6 +52,7 @@ export const usePendingListingsByPage = defineQuery(() => {
 
       return data.map(objectToCamel);
     },
+    refetchOnReconnect: false,
     refetchOnWindowFocus: false,
   });
 

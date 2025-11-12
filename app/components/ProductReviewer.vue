@@ -74,6 +74,8 @@ const {
 
     return objectToCamel(resp.data);
   },
+  refetchOnReconnect: false,
+  refetchOnWindowFocus: false,
 });
 
 watch(

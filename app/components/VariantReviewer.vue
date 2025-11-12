@@ -99,6 +99,8 @@ const { state: variant, asyncStatus } = useQuery({
 
     return objectToCamel(resp.data);
   },
+  refetchOnReconnect: false,
+  refetchOnWindowFocus: false,
 });
 
 watch(
