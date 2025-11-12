@@ -354,6 +354,7 @@ const { mutate: publishProduct } = useMutation({
       <FilamentProductForm
         v-if="product.data.type === 'filament' && product.data.filaments"
         :filament="product.data.filaments"
+        @refetch="refetch"
       />
     </div>
   </div>
