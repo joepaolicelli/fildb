@@ -1,5 +1,7 @@
 <script setup lang="ts">
-const navItems = ref([
+import type { NavigationMenuItem } from '@nuxt/ui';
+
+const navItems = computed<NavigationMenuItem[]>(() => [
   {
     label: 'Home',
     to: '/',
@@ -15,15 +17,27 @@ const navItems = ref([
 ]);
 </script>
 <template>
-  <div class="sticky top-0 flex justify-between p-3">
-    <div class="self-center text-2xl">
-      <b>FilDB</b>
-    </div>
-    <div>
-      <UNavigationMenu :items="navItems" class="self-center" />
-    </div>
-    <div>
+  <UHeader>
+    <template #title>
+      <div class="text-2xl">
+        <b>FilDB</b>
+      </div>
+    </template>
+
+    <UNavigationMenu :items="navItems" />
+
+    <template #right>
+      <UColorModeSwitch />
       <slot name="right"></slot>
-    </div>
-  </div>
+    </template>
+
+    <!-- Expanded hamburger content on small screens. -->
+    <template #body>
+      <UNavigationMenu
+        :items="navItems"
+        orientation="vertical"
+        class="-mx-2.5"
+      />
+    </template>
+  </UHeader>
 </template>
