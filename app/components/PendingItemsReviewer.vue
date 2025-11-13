@@ -117,7 +117,6 @@ const columns: TableColumn<PendingListing>[] = [
         </div>
         <UTable :columns="columns" :data="pendingListings">
           <template #expanded="{ row }">
-            <pre>{{ row.original }}</pre>
             <div class="m-1 rounded-lg border-2 border-slate-400 p-2">
               <div class="font-bold uppercase">Listing</div>
               <UForm
@@ -169,6 +168,18 @@ const columns: TableColumn<PendingListing>[] = [
                 :variant-id="v.variantId"
               />
             </div>
+            <UCollapsible class="flex flex-col">
+              <UButton
+                label="Raw JSON"
+                color="neutral"
+                variant="outline"
+                trailing-icon="i-lucide-plus"
+                block
+              />
+              <template #content>
+                <pre>{{ row.original }}</pre>
+              </template>
+            </UCollapsible>
           </template>
         </UTable>
       </div>
