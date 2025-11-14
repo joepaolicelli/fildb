@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { SelectItem } from '@nuxt/ui';
 import { useMutation, useQuery } from '@pinia/colada';
 import { objectToCamel, objectToSnake } from 'ts-case-convert';
 import type { CamelCasedPropertiesDeep } from 'type-fest';
@@ -13,9 +14,11 @@ const props = defineProps<{
 const emit = defineEmits(['refetch']);
 
 const supabase = useSupabaseClient();
+const toast = useToast();
 
 const filamentFormSchema = z.object({
   material: z.string(),
+  materialClass: z.string(),
   colorName: z.string(),
   colorHex: z.union([z.string().min(6).max(8), z.string().length(0)]),
 });
@@ -23,6 +26,7 @@ type FilamentFormSchema = z.output<typeof filamentFormSchema>;
 
 const form: Reactive<z.infer<typeof filamentFormSchema>> = reactive({
   material: '',
+  materialClass: '[null]',
   colorName: '',
   colorHex: '',
 });
@@ -31,11 +35,37 @@ watch(
   () => props.filament,
   () => {
     form.material = props.filament.material ?? '';
+    form.materialClass = props.filament.materialClass ?? '[null]';
     form.colorName = props.filament.colorName ?? '';
     form.colorHex = props.filament.colorHex ?? '';
   },
   { immediate: true },
 );
+
+const materialClasses = await supabase
+  .from('filament_material_classes')
+  .select();
+
+if (materialClasses.error || materialClasses.data == null) {
+  console.log(materialClasses.error);
+  toast.add({
+    title: 'Error loading material classes.',
+    description: materialClasses.error.message,
+    icon: icons.error,
+    color: 'error',
+    duration: -1,
+  });
+}
+
+let materialClassOptions = ref<SelectItem[]>([
+  { label: '[null]', value: '[null]' },
+]);
+if (materialClasses.data) {
+  materialClassOptions = ref<SelectItem[]>([
+    { label: '[null]', value: '[null]' },
+    ...materialClasses.data.map((mc) => ({ label: mc.name, value: mc.id })),
+  ]);
+}
 
 const filamentStatus: Reactive<{
   sending: boolean;
@@ -59,6 +89,8 @@ const { mutate: updateFilament } = useMutation({
       .update(
         objectToSnake({
           material: updates.material === '' ? null : updates.material,
+          materialClass:
+            updates.materialClass === '[null]' ? null : updates.materialClass,
           colorName: updates.colorName === '' ? null : updates.colorName,
           colorHex: updates.colorHex === '' ? null : updates.colorHex,
         }),
@@ -96,6 +128,21 @@ const { mutate: updateFilament } = useMutation({
       "
     >
       <UInput v-model="form.material" class="min-w-40" />
+    </UFormField>
+    <UFormField
+      label="Material Class"
+      name="materialClass"
+      :ui="
+        enumFormFieldEquiv(props.filament.materialClass, form.materialClass)
+          ? {}
+          : modFormFieldStyles
+      "
+    >
+      <USelect
+        v-model="form.materialClass"
+        :items="materialClassOptions"
+        class="min-w-40"
+      />
     </UFormField>
     <UFormField
       label="Color Name"
