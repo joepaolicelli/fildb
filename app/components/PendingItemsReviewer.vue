@@ -86,8 +86,8 @@ const columns: TableColumn<PendingListing>[] = [
       }),
   },
   {
-    accessorKey: 'listing.skuId',
-    header: 'SKU ID',
+    accessorKey: 'listing.skus.name',
+    header: 'SKU',
   },
 ];
 </script>
