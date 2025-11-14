@@ -577,6 +577,34 @@ export const pagesWithPendingListingsView = pgView(
   );
 
 /* === Product and Variant Types === */
+/* Filaments */
+export const filamentMaterialClasses = pgTable(
+  'filament_material_classes',
+  {
+    id: uuid().primaryKey(),
+    name: text().unique().notNull(),
+    description: text(),
+    ...timestamps,
+  },
+  () => [
+    pgPolicy('read for all', {
+      for: 'select',
+      to: 'public',
+      using: sql`true`,
+    }),
+    pgPolicy('insert items', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+    pgPolicy('update items', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+  ],
+);
+
 export const filaments = pgTable(
   'filaments',
   {
@@ -584,6 +612,7 @@ export const filaments = pgTable(
       .primaryKey()
       .references(() => products.id),
     material: text(),
+    materialClass: uuid().references(() => filamentMaterialClasses.id),
     colorName: text(),
     colorHex: text(), // Without the "#"
     ...timestamps,
