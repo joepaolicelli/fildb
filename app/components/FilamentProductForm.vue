@@ -7,6 +7,7 @@ import type { Reactive } from 'vue';
 import { z } from 'zod';
 
 import type { Tables } from '~~/types/database.types';
+import { useFilamentMaterialClasses } from '~/queries/filamentMaterialClasses';
 
 const props = defineProps<{
   filament: CamelCasedPropertiesDeep<Tables<'filaments'>>;
@@ -15,6 +16,8 @@ const emit = defineEmits(['refetch']);
 
 const supabase = useSupabaseClient();
 const toast = useToast();
+
+const { filamentMaterialClasses } = useFilamentMaterialClasses();
 
 const filamentFormSchema = z.object({
   material: z.string(),
@@ -42,30 +45,31 @@ watch(
   { immediate: true },
 );
 
-const materialClasses = await supabase
-  .from('filament_material_classes')
-  .select();
+const materialClassOptions = computed((): SelectItem[] => {
+  if (filamentMaterialClasses.value.error) {
+    toast.add({
+      title: 'Error loading filament material classes.',
+      description: filamentMaterialClasses.value.error.message,
+      icon: icons.error,
+      color: 'error',
+      duration: -1,
+    });
+  } else if (filamentMaterialClasses.value.data) {
+    return [
+      { label: '[null]', value: '[null]' },
+      ...filamentMaterialClasses.value.data.map(
+        (
+          mc: CamelCasedPropertiesDeep<Tables<'filament_material_classes'>>,
+        ) => ({
+          label: mc.name,
+          value: mc.id,
+        }),
+      ),
+    ];
+  }
 
-if (materialClasses.error || materialClasses.data == null) {
-  console.log(materialClasses.error);
-  toast.add({
-    title: 'Error loading material classes.',
-    description: materialClasses.error.message,
-    icon: icons.error,
-    color: 'error',
-    duration: -1,
-  });
-}
-
-let materialClassOptions = ref<SelectItem[]>([
-  { label: '[null]', value: '[null]' },
-]);
-if (materialClasses.data) {
-  materialClassOptions = ref<SelectItem[]>([
-    { label: '[null]', value: '[null]' },
-    ...materialClasses.data.map((mc) => ({ label: mc.name, value: mc.id })),
-  ]);
-}
+  return [{ label: '[null]', value: '[null]' }];
+});
 
 const filamentStatus: Reactive<{
   sending: boolean;
