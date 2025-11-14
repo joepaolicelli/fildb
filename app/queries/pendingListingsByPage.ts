@@ -6,16 +6,16 @@ export const usePendingListingsByPage = defineQuery(() => {
   const client = useSupabaseClient();
   const route = useRoute();
 
-  // Not pagination for this query - page refers to a page of listings on a
-  // site.
-  let pageId = Array.isArray(route.params.pageId)
-    ? route.params.pageId[0]
-    : route.params.pageId;
-  pageId = pageId ?? '';
-
   const { state, ...rest } = useQuery({
-    key: ['pendingListings', pageId],
+    key: () => ['pendingListings', route.params.pageId as string],
     query: async () => {
+      // Not pagination for this query - page refers to a page of listings on a
+      // site.
+      let pageId = Array.isArray(route.params.pageId)
+        ? route.params.pageId[0]
+        : route.params.pageId;
+      pageId = pageId ?? '';
+
       const data = [];
       let rangeStart = 0;
       do {
