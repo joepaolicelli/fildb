@@ -2,11 +2,14 @@
 import { useMutation, useQuery } from '@pinia/colada';
 import { DateTime } from 'luxon';
 import { objectToCamel, objectToSnake } from 'ts-case-convert';
+import type { CamelCasedPropertiesDeep } from 'type-fest';
 import type { Reactive } from 'vue';
 import { z } from 'zod';
 
 import { productTypes } from '~~/db/schema';
+import type { Tables } from '~~/types/database.types';
 import { useBrands } from '~/queries/brands';
+import type { InputMenuItem } from '@nuxt/ui';
 
 const props = defineProps<{
   productId: string;
@@ -31,7 +34,7 @@ interface Sources {
 const productFormSchema = z.object({
   filDbId: z.union([z.string().length(7), z.string().length(0)]),
   name: z.string().min(1),
-  brandId: z.string().uuid(),
+  brandId: z.union([z.uuid(), z.literal('[null]')]),
   type: z.enum(['[null]', ...productTypes]),
   // tags
   // notes
@@ -42,7 +45,7 @@ type ProductFormSchema = z.output<typeof productFormSchema>;
 const form: Reactive<z.infer<typeof productFormSchema>> = reactive({
   filDbId: '',
   name: '',
-  brandId: '',
+  brandId: '[null]',
   type: '[null]',
 });
 
@@ -86,12 +89,36 @@ watch(
 
       form.filDbId = v.filDbId ?? '';
       form.name = v.name;
-      form.brandId = v.brandId;
+      form.brandId = v.brandId ?? '[null]';
       form.type = v.type ?? '[null]';
     }
   },
   { immediate: true },
 );
+
+const brandOptions = computed((): InputMenuItem[] => {
+  if (brands.value.error) {
+    toast.add({
+      title: 'Error loading brands.',
+      description: brands.value.error.message,
+      icon: icons.error,
+      color: 'error',
+      duration: -1,
+    });
+  } else if (brands.value.data) {
+    return [
+      { label: '[null]', value: '[null]' },
+      ...brands.value.data.map(
+        (brand: CamelCasedPropertiesDeep<Tables<'brands'>>) => ({
+          label: brand.name,
+          value: brand.id,
+        }),
+      ),
+    ];
+  }
+
+  return [{ label: '[null]', value: '[null]' }];
+});
 
 const typeOptions = ref(['[null]', ...productTypes]);
 
@@ -305,11 +332,20 @@ const { mutate: publishProduct } = useMutation({
           <UInput v-model="form.name" class="min-w-80" />
         </UFormField>
         <UFormField
-          label="Brand ID"
+          label="Brand"
           name="brandId"
-          :ui="product.data.brandId === form.brandId ? {} : modFormFieldStyles"
+          :ui="
+            enumFormFieldEquiv(product.data.brandId, form.brandId)
+              ? {}
+              : modFormFieldStyles
+          "
         >
-          <UInput v-model="form.brandId" class="min-w-80" />
+          <UInputMenu
+            v-model="form.brandId"
+            value-key="value"
+            :items="brandOptions"
+            class="min-w-48"
+          />
         </UFormField>
         <UFormField
           label="Type"
