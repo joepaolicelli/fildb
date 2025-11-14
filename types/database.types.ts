@@ -567,7 +567,7 @@ export type Database = {
         }
         Relationships: []
       }
-      tags: {
+      tag_categories: {
         Row: {
           created_at: string
           description: string | null
@@ -593,6 +593,44 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      tags: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          product_types: Database["public"]["Enums"]["product_type"][]
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id: string
+          name: string
+          product_types?: Database["public"]["Enums"]["product_type"][]
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          product_types?: Database["public"]["Enums"]["product_type"][]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tags_category_tag_categories_id_fk"
+            columns: ["category"]
+            isOneToOne: false
+            referencedRelation: "tag_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

@@ -32,12 +32,44 @@ const timestamps = {
 export const productTypes = ['filament', 'printer'] as const;
 export const productTypeEnum = pgEnum('product_type', productTypes);
 
+export const tagCategories = pgTable(
+  'tag_categories',
+  {
+    id: uuid().primaryKey(),
+    name: text().unique().notNull(),
+    description: text(),
+    productTypes: productTypeEnum()
+      .array()
+      .notNull()
+      .default(sql`ARRAY[]::product_type[]`), // Blank array,
+    ...timestamps,
+  },
+  () => [
+    pgPolicy('read for all', {
+      for: 'select',
+      to: 'public',
+      using: sql`true`,
+    }),
+    pgPolicy('insert access', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+    pgPolicy('update access', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+  ],
+);
+
 export const tags = pgTable(
   'tags',
   {
     id: uuid().primaryKey(),
     name: text().unique().notNull(),
     description: text(),
+    category: uuid().references(() => tagCategories.id),
     productTypes: productTypeEnum()
       .array()
       .notNull()
