@@ -8,6 +8,7 @@ import {
   pgPolicy,
   pgTable,
   pgView,
+  primaryKey,
   QueryBuilder,
   text,
   timestamp,
@@ -276,7 +277,8 @@ export const productGroupMemberships = pgTable(
     ...timestamps,
     publishedAt: timestamp(),
   },
-  () => [
+  (table) => [
+    primaryKey({ columns: [table.productId, table.productGroupId] }),
     pgPolicy('read for all', {
       for: 'select',
       to: 'public',
@@ -316,7 +318,8 @@ export const productTags = pgTable(
       .notNull()
       .references(() => tags.id),
   },
-  () => [
+  (table) => [
+    primaryKey({ columns: [table.productId, table.tagId] }),
     pgPolicy('read for all', {
       for: 'select',
       to: 'public',
@@ -432,7 +435,8 @@ export const variantSkus = pgTable(
     ...timestamps,
     publishedAt: timestamp(),
   },
-  () => [
+  (table) => [
+    primaryKey({ columns: [table.variantId, table.skuId] }),
     pgPolicy('read for all', {
       for: 'select',
       to: 'public',
