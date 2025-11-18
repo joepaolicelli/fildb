@@ -68,6 +68,10 @@ export const tags = pgTable(
   {
     id: uuid().primaryKey(),
     name: text().unique().notNull(),
+    aliases: text()
+      .array()
+      .notNull()
+      .default(sql`ARRAY[]::text[]`), // Blank array
     description: text(),
     category: uuid().references(() => tagCategories.id),
     productTypes: productTypeEnum()
