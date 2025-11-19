@@ -2,7 +2,9 @@
   <div>
     <SiteHeader />
     <UMain>
-      <slot></slot>
+      <UContainer>
+        <slot></slot>
+      </UContainer>
     </UMain>
   </div>
 </template>

@@ -117,69 +117,78 @@ const columns: TableColumn<PendingListing>[] = [
         </div>
         <UTable :columns="columns" :data="pendingListings">
           <template #expanded="{ row }">
-            <div class="m-1 rounded-lg border-2 border-slate-400 p-2">
-              <div class="font-bold uppercase">Listing</div>
-              <UForm
-                :schema="listingFormSchema"
-                :state="row.original.form"
-                class="flex gap-2"
-              >
-                <UFormField label="SKU ID">
-                  <UInput v-model="row.original.form.skuId" class="min-w-80" />
-                </UFormField>
-                <UFormField label="Direct URL">
-                  <UInput
-                    v-model="row.original.form.directUrl"
-                    class="min-w-80"
-                  />
-                </UFormField>
-                <UButton type="submit" class="h-fit self-end">Update</UButton>
-              </UForm>
+            <div class="max-w-screen">
+              <div class="m-1 rounded-lg border-2 border-slate-400 p-2">
+                <div class="font-bold uppercase">Listing</div>
+                <UForm
+                  :schema="listingFormSchema"
+                  :state="row.original.form"
+                  class="flex gap-2"
+                >
+                  <UFormField label="SKU ID">
+                    <UInput
+                      v-model="row.original.form.skuId"
+                      class="min-w-80"
+                    />
+                  </UFormField>
+                  <UFormField label="Direct URL">
+                    <UInput
+                      v-model="row.original.form.directUrl"
+                      class="min-w-80"
+                    />
+                  </UFormField>
+                  <UButton type="submit" class="h-fit self-end"
+                    >Update</UButton
+                  >
+                </UForm>
+              </div>
+              <div class="m-1 rounded-lg border-2 border-slate-400 p-2">
+                <div class="font-bold uppercase">SKU</div>
+                <UForm
+                  :schema="skuFormSchema"
+                  :state="row.original.skuForm"
+                  class="flex gap-2"
+                >
+                  <UFormField label="Name">
+                    <UInput
+                      v-model="row.original.skuForm.name"
+                      class="min-w-80"
+                    />
+                  </UFormField>
+                  <UFormField label="Shipping Grams">
+                    <UInput
+                      v-model="row.original.skuForm.shippingGrams"
+                      type="number"
+                    />
+                  </UFormField>
+                  <!--TODO multiselect of variants to add to SKU-->
+                  <!--TODO list of variants in SKU, showing variant name, with quantity field and remove button-->
+                  <UButton type="submit" class="h-fit self-end"
+                    >Update</UButton
+                  >
+                </UForm>
+              </div>
+              <div class="m-1 rounded-lg border-2 border-slate-400 p-2">
+                <div class="font-bold uppercase">Variants</div>
+                <VariantReviewer
+                  v-for="v of row.original.listing.skus.variantSkus"
+                  :key="v.variantId"
+                  :variant-id="v.variantId"
+                />
+              </div>
+              <UCollapsible class="flex flex-col">
+                <UButton
+                  label="Raw JSON"
+                  color="neutral"
+                  variant="outline"
+                  trailing-icon="i-lucide-plus"
+                  block
+                />
+                <template #content>
+                  <pre>{{ row.original }}</pre>
+                </template>
+              </UCollapsible>
             </div>
-            <div class="m-1 rounded-lg border-2 border-slate-400 p-2">
-              <div class="font-bold uppercase">SKU</div>
-              <UForm
-                :schema="skuFormSchema"
-                :state="row.original.skuForm"
-                class="flex gap-2"
-              >
-                <UFormField label="Name">
-                  <UInput
-                    v-model="row.original.skuForm.name"
-                    class="min-w-80"
-                  />
-                </UFormField>
-                <UFormField label="Shipping Grams">
-                  <UInput
-                    v-model="row.original.skuForm.shippingGrams"
-                    type="number"
-                  />
-                </UFormField>
-                <!--TODO multiselect of variants to add to SKU-->
-                <!--TODO list of variants in SKU, showing variant name, with quantity field and remove button-->
-                <UButton type="submit" class="h-fit self-end">Update</UButton>
-              </UForm>
-            </div>
-            <div class="m-1 rounded-lg border-2 border-slate-400 p-2">
-              <div class="font-bold uppercase">Variants</div>
-              <VariantReviewer
-                v-for="v of row.original.listing.skus.variantSkus"
-                :key="v.variantId"
-                :variant-id="v.variantId"
-              />
-            </div>
-            <UCollapsible class="flex flex-col">
-              <UButton
-                label="Raw JSON"
-                color="neutral"
-                variant="outline"
-                trailing-icon="i-lucide-plus"
-                block
-              />
-              <template #content>
-                <pre>{{ row.original }}</pre>
-              </template>
-            </UCollapsible>
           </template>
         </UTable>
       </div>

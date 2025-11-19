@@ -26,7 +26,9 @@ const layoutStore = useLayoutStore();
         </template>
       </SiteHeader>
       <UMain class="m-2">
-        <slot></slot>
+        <UContainer>
+          <slot></slot>
+        </UContainer>
       </UMain>
     </div>
   </div>
