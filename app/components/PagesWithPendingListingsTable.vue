@@ -14,12 +14,12 @@ const columns: TableColumn<
   CamelCasedPropertiesDeep<Tables<'pages_with_pending_listings_view'>>
 >[] = [
   {
-    accessorKey: 'url',
-    header: 'Page',
-  },
-  {
     accessorKey: 'pendingListingsCount',
     header: 'Listings',
+  },
+  {
+    accessorKey: 'url',
+    header: 'Page',
   },
 ];
 </script>
@@ -41,7 +41,11 @@ const columns: TableColumn<
       />
     </div>
     <div v-else-if="pagesWithPendingListings.data">
-      <UTable :columns="columns" :data="pagesWithPendingListings.data ?? []">
+      <UTable
+        :columns="columns"
+        :data="pagesWithPendingListings.data ?? []"
+        class="max-w-screen"
+      >
         <template #pendingListingsCount-cell="{ row }">
           <ULink :to="`/admin/pending/${row.original.pageId}`">
             {{ row.getValue('pendingListingsCount') }}
