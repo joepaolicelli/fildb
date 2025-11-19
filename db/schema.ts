@@ -305,6 +305,11 @@ export const productGroupMemberships = pgTable(
       to: authenticatedRole,
       using: sql`(SELECT authorize('manage_published_items'))`,
     }),
+    pgPolicy('delete access', {
+      for: 'delete',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
+    }),
   ],
 );
 
@@ -332,6 +337,11 @@ export const productTags = pgTable(
     }),
     pgPolicy('update access', {
       for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+    pgPolicy('delete access', {
+      for: 'delete',
       to: authenticatedRole,
       using: sql`(SELECT authorize('manage_published_items'))`,
     }),
@@ -460,6 +470,11 @@ export const variantSkus = pgTable(
     }),
     pgPolicy('update published items', {
       for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+    pgPolicy('delete access', {
+      for: 'delete',
       to: authenticatedRole,
       using: sql`(SELECT authorize('manage_published_items'))`,
     }),
