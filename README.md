@@ -180,6 +180,10 @@ To add a new `app_role`:
 ALTER TYPE app_role ADD VALUE 'new_app_role';
 ```
 
+#### Initial Field Values
+
+See [this file](docs/initial-field-values.md) for SQL to add recommended tags and other field options.
+
 ## Notes
 
 ### Workarounds Used During Development
