@@ -11,11 +11,13 @@ import { useFilamentMaterialClasses } from '~/queries/filamentMaterialClasses';
 
 const props = defineProps<{
   filament: CamelCasedPropertiesDeep<Tables<'filaments'>>;
+  product: CamelCasedPropertiesDeep<Tables<'products'>>;
 }>();
 const emit = defineEmits(['refetch']);
 
 const supabase = useSupabaseClient();
 const toast = useToast();
+const statusToaster = new StatusToaster('Filament Info');
 
 const { filamentMaterialClasses } = useFilamentMaterialClasses();
 
@@ -41,6 +43,8 @@ watch(
     form.materialClass = props.filament.materialClass ?? '[null]';
     form.colorName = props.filament.colorName ?? '';
     form.colorHex = props.filament.colorHex ?? '';
+
+    statusToaster.updateContext(`Filament Info: ${props.product.name}`);
   },
   { immediate: true },
 );
@@ -71,22 +75,11 @@ const materialClassOptions = computed((): SelectItem[] => {
   return [{ label: '[null]', value: '[null]' }];
 });
 
-const filamentStatus: Reactive<{
-  sending: boolean;
-  showAlert: boolean;
-  alertText: string;
-  alertColor: ThemeColor;
-}> = reactive({
-  sending: false,
-  showAlert: false,
-  alertText: '',
-  alertColor: 'neutral',
-});
+const sending = ref(false);
 
 const { mutate: updateFilament } = useMutation({
   mutation: async (updates: FilamentFormSchema) => {
-    filamentStatus.showAlert = false;
-    filamentStatus.sending = true;
+    sending.value = true;
 
     const { error } = await supabase
       .from('filaments')
@@ -101,16 +94,12 @@ const { mutate: updateFilament } = useMutation({
       )
       .eq('product_id', props.filament.productId);
     if (error) {
-      filamentStatus.alertColor = 'error';
-      filamentStatus.alertText = `Error: ${error.message}`;
-      filamentStatus.showAlert = true;
+      statusToaster.error('Update Failed!', error.message);
       console.log(error);
     } else {
-      filamentStatus.alertColor = 'success';
-      filamentStatus.alertText = 'Updated!';
-      filamentStatus.showAlert = true;
+      statusToaster.success('Updated!');
     }
-    filamentStatus.sending = false;
+    sending.value = false;
   },
   onSettled: async () => emit('refetch'),
 });
@@ -119,6 +108,7 @@ const { mutate: updateFilament } = useMutation({
   <UForm
     :schema="filamentFormSchema"
     :state="form"
+    :disabled="sending"
     class="flex flex-wrap gap-x-4 gap-y-3"
     @submit="() => updateFilament(form)"
   >
