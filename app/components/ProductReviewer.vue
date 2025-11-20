@@ -63,7 +63,8 @@ const {
       .select(
         `
           *,
-          filaments(*)
+          filaments(*),
+          tags(*)
         `,
       )
       .eq('id', props.productId)
@@ -393,6 +394,8 @@ const { mutate: publishProduct } = useMutation({
         :product="product.data"
         @refetch="refetch"
       />
+      <USeparator class="my-2" />
+      <ProductTagSelector :product="product.data" @refetch="refetch" />
     </div>
   </div>
 </template>
