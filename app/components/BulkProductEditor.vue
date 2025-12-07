@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { objectToSnake } from 'ts-case-convert';
 import type { CamelCasedPropertiesDeep } from 'type-fest';
 
+import { productTypes } from '~~/db/schema';
 import type { Tables } from '~~/types/database.types';
 import { useBrands } from '~/queries/brands';
 
@@ -48,9 +49,15 @@ const brandOptions = computed((): InputMenuItem[] => {
   return [{ label: '[null]', value: '[null]' }];
 });
 
+type productTypeType = '' | '[null]' | (typeof productTypes)[number];
+const productType: Ref<productTypeType> = ref('[null]');
+const productTypeNotes = ref('');
+const productTypeOptions = ref(['[null]', ...productTypes]);
+
 watch(
   [() => products, () => brands],
   () => {
+    // Brand
     if (brands.value.data) {
       const currentBrands = _.uniq(
         selectedProducts.value.map((p) => p.brandId),
@@ -64,6 +71,16 @@ watch(
         brand.value = '';
         brandNotes.value = `${currentBrands.length} current brands`;
       }
+    }
+
+    // Type
+    const currentTypes = _.uniq(selectedProducts.value.map((p) => p.type));
+    if (currentTypes.length === 1) {
+      productType.value = currentTypes[0] ?? '';
+      productTypeNotes.value = `Current type for all: ${currentTypes[0]}`;
+    } else {
+      productType.value = '';
+      productTypeNotes.value = `${currentTypes.length} current types`;
     }
   },
   { immediate: true, deep: true },
@@ -97,6 +114,37 @@ const { mutate: updateBrand } = useMutation({
   },
   onSettled: async () => emit('refetchAll'),
 });
+
+const { mutate: updateProductType } = useMutation({
+  mutation: async () => {
+    sending.value = true;
+
+    if (productType.value === '') {
+      statusToaster.error('Type Update Failed!', 'No type selected.');
+    } else {
+      const { error } = await supabase
+        .from('products')
+        .update(
+          objectToSnake({
+            type: productType.value === '[null]' ? null : productType.value,
+          }),
+        )
+        .in(
+          'id',
+          selectedProducts.value.map((p) => p.id),
+        );
+
+      if (error) {
+        statusToaster.error('Type Update Failed!', error.message);
+        console.log(error);
+      } else {
+        statusToaster.success('Type Updated!');
+      }
+    }
+    sending.value = false;
+  },
+  onSettled: async () => emit('refetchAll'),
+});
 </script>
 <template>
   <div>
@@ -121,9 +169,28 @@ const { mutate: updateBrand } = useMutation({
                 class="min-w-48"
               />
               <UButton
-                :disabled="brand === ''"
+                :disabled="sending || brand === ''"
                 :loading="sending"
                 @click="updateBrand()"
+                >Update</UButton
+              >
+            </UFieldGroup>
+          </UFormField>
+        </div>
+        <div class="m-1 rounded-lg border-1 border-slate-400 p-2">
+          <UFormField label="Type" :help="productTypeNotes">
+            <UFieldGroup>
+              <UInputMenu
+                v-model="productType"
+                value-key="value"
+                :items="productTypeOptions"
+                placeholder="---"
+                class="min-w-48"
+              />
+              <UButton
+                :disabled="sending || productType === ''"
+                :loading="sending"
+                @click="updateProductType()"
                 >Update</UButton
               >
             </UFieldGroup>
