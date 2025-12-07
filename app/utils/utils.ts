@@ -1,4 +1,6 @@
 import type { CamelCasedPropertiesDeep } from 'type-fest';
+import { z } from 'zod';
+
 import type { Tables } from '~~/types/database.types';
 
 export type ThemeColor =
@@ -82,4 +84,48 @@ export const getTagsForProductTypeByCategory = (
     return result;
   }
   return [];
+};
+
+export const listingFormSchema = z.object({
+  skuId: z.string().uuid(),
+  directUrl: z.string().url(),
+});
+export const skuFormSchema = z.object({
+  name: z.string().min(1),
+  shippingGrams: z.number().int(),
+  variants: z.array(
+    z.object({
+      variantId: z.string().uuid(),
+      quantity: z.number().int(),
+    }),
+  ),
+});
+
+export type PendingVariant = CamelCasedPropertiesDeep<Tables<'variants'>> & {
+  selected: boolean;
+  productSelected?: boolean;
+  products: CamelCasedPropertiesDeep<Tables<'products'>>;
+  filamentVariants: CamelCasedPropertiesDeep<
+    Tables<'filament_variants'>
+  > | null;
+};
+export type PendingProduct = CamelCasedPropertiesDeep<Tables<'products'>> & {
+  selected: boolean;
+  filaments: CamelCasedPropertiesDeep<Tables<'filaments'>> | null;
+  tags: CamelCasedPropertiesDeep<Tables<'tags'>>[];
+  variants: CamelCasedPropertiesDeep<Tables<'variants'>>[];
+};
+export type PendingListing = {
+  listing: CamelCasedPropertiesDeep<Tables<'listings'>> & {
+    skus: CamelCasedPropertiesDeep<Tables<'skus'>> & {
+      variantSkus: CamelCasedPropertiesDeep<Tables<'variant_skus'>>[];
+    };
+  };
+  form: z.infer<typeof listingFormSchema>;
+  skuForm: z.infer<typeof skuFormSchema>;
+  // For bulk edits, load variants and products here. Otherwise load them
+  // individually only in VariantReviewer and ProductReviewer only when row is
+  // expanded.
+  variants: PendingVariant[] | null;
+  products: PendingProduct[] | null;
 };

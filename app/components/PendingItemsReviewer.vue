@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui';
+import _ from 'lodash';
+import { objectToCamel } from 'ts-case-convert';
 import type { CamelCasedPropertiesDeep } from 'type-fest';
+import { useRoute } from 'vue-router';
 import { z } from 'zod';
 
 import type { Tables } from '~~/types/database.types';
 import { usePendingListingsByPage } from '~/queries/pendingListingsByPage';
 
 const UButton = resolveComponent('UButton');
+
+const route = useRoute();
+const supabase = useSupabaseClient();
 
 const { listings, asyncStatus } = usePendingListingsByPage();
 
@@ -21,30 +27,26 @@ interface Sources {
   sources: ProductSource[];
 }
 
-const listingFormSchema = z.object({
-  skuId: z.string().uuid(),
-  directUrl: z.string().url(),
-});
-const skuFormSchema = z.object({
-  name: z.string().min(1),
-  shippingGrams: z.number().int(),
-  variants: z.array(
-    z.object({
-      variantId: z.string().uuid(),
-      quantity: z.number().int(),
-    }),
-  ),
-});
-
-type PendingListing = {
-  listing: CamelCasedPropertiesDeep<Tables<'listings'>> & {
-    skus: CamelCasedPropertiesDeep<Tables<'skus'>> & {
-      variantSkus: CamelCasedPropertiesDeep<Tables<'variant_skus'>>[];
-    };
-  };
-  form: z.infer<typeof listingFormSchema>;
-  skuForm: z.infer<typeof skuFormSchema>;
-};
+const bulkTabs = [
+  {
+    label: 'SKUs',
+    value: 'skus',
+    icon: 'material-symbols:shopping-cart-outline',
+    slot: 'bulkSkus',
+  },
+  {
+    label: 'Variants',
+    value: 'variants',
+    icon: 'icon-park-outline:ad-product',
+    slot: 'bulkVariants',
+  },
+  {
+    label: 'Products',
+    value: 'products',
+    icon: 'material-symbols:circle-outline',
+    slot: 'bulkProducts',
+  },
+];
 
 const pendingListings: Ref<PendingListing[]> = ref([]);
 
@@ -62,6 +64,8 @@ watch(listings, (loadedListings) => {
           shippingGrams: l.skus.shippingGrams ?? 0,
           variants: l.skus.variantSkus,
         },
+        variants: null,
+        products: null,
       };
     });
   }
@@ -89,7 +93,85 @@ const columns: TableColumn<PendingListing>[] = [
     accessorKey: 'listing.skus.name',
     header: 'SKU',
   },
+  {
+    accessorKey: 'variants',
+    header: 'Variants & Products',
+  },
 ];
+
+const pendingVariants: Ref<PendingVariant[]> = ref([]);
+const pendingProducts: Ref<PendingProduct[]> = ref([]);
+
+const loadAllItems = async () => {
+  if (listings.value.data) {
+    // Get variants.
+    const variantsResp = await supabase
+      .from('variants')
+      .select(
+        `
+        *,
+        products(*),
+        filament_variants(*)
+        `,
+      )
+      .in(
+        'id',
+        listings.value.data
+          .map((l) => l.skus.variantSkus.map((vs) => vs.variantId))
+          .flat(),
+      );
+
+    if (variantsResp.error) {
+      console.log(variantsResp.error);
+      throw variantsResp.error;
+    }
+
+    pendingVariants.value = _.uniqBy(
+      objectToCamel(variantsResp.data).map((v) => ({
+        ...v,
+        selected: true,
+      })),
+      'id',
+    );
+
+    // Get products.
+    const productsResp = await supabase
+      .from('products')
+      .select(
+        `
+        *,
+        filaments(*),
+        tags(*),
+        variants(*)
+        `,
+      )
+      .in(
+        'id',
+        pendingVariants.value.map((v) => v.products.id),
+      );
+
+    if (productsResp.error) {
+      console.log(productsResp.error);
+      throw productsResp.error;
+    }
+
+    pendingProducts.value = _.uniqBy(
+      objectToCamel(productsResp.data).map((p) => ({
+        ...p,
+        selected: true,
+      })),
+      'id',
+    );
+
+    for (const pl of pendingListings.value) {
+      pl.variants = pendingVariants.value
+        .filter((v) =>
+          pl.listing.skus.variantSkus.map((vs) => vs.variantId).includes(v.id),
+        )
+        .map((v) => ({ ...v, selected: true, productSelected: true }));
+    }
+  }
+};
 </script>
 <template>
   <div>
@@ -115,7 +197,89 @@ const columns: TableColumn<PendingListing>[] = [
             {{ listings.data.length }} pending listings
           </div>
         </div>
+        <div class="m-1 max-w-screen rounded-lg border-2 border-slate-400 p-2">
+          <div class="flex justify-between">
+            <div class="font-bold uppercase">Bulk Editing</div>
+            <UButton label="Load All Items" @click="loadAllItems" />
+          </div>
+          <div v-if="pendingVariants.length > 0" class="my-2">
+            <UTabs :items="bulkTabs" default-value="products">
+              <template #bulkProducts>
+                <BulkProductEditor
+                  :products="pendingProducts"
+                  @refetch-all="loadAllItems()"
+                  @select-all="
+                    () => {
+                      for (const pp of pendingProducts) {
+                        pp.selected = true;
+                      }
+                      for (const pl of pendingListings) {
+                        for (const v of pl.variants ?? []) {
+                          v.productSelected = true;
+                        }
+                      }
+                    }
+                  "
+                  @clear-all="
+                    () => {
+                      for (const pp of pendingProducts) {
+                        pp.selected = false;
+                      }
+                      for (const pl of pendingListings) {
+                        for (const v of pl.variants ?? []) {
+                          v.productSelected = false;
+                        }
+                      }
+                    }
+                  "
+                />
+              </template>
+            </UTabs>
+          </div>
+        </div>
         <UTable :columns="columns" :data="pendingListings">
+          <template #variants-cell="{ row }">
+            <div v-if="row.original.variants">
+              <div
+                v-for="variant in row.original.variants"
+                :key="variant.id"
+                class="grid-columns-2 grid grid-flow-col gap-1"
+              >
+                <UCheckbox
+                  v-model="variant.selected"
+                  :label="variant.name"
+                  variant="card"
+                  class="rounded-none"
+                  @update:model-value="
+                    (selected) => {
+                      const pv = pendingVariants.find(
+                        (v) => v.id === variant.id,
+                      );
+                      if (pv && typeof selected === 'boolean') {
+                        pv.selected = selected;
+                      }
+                    }
+                  "
+                />
+                <UCheckbox
+                  v-model="variant.productSelected"
+                  :label="variant.products.name"
+                  variant="card"
+                  class="rounded-none"
+                  @update:model-value="
+                    (selected) => {
+                      const pp = pendingProducts.find(
+                        (p) => p.id === variant.products.id,
+                      );
+                      if (pp && typeof selected === 'boolean') {
+                        pp.selected = selected;
+                      }
+                    }
+                  "
+                />
+              </div>
+            </div>
+          </template>
           <template #expanded="{ row }">
             <div class="max-w-screen">
               <div class="m-1 rounded-lg border-2 border-slate-400 p-2">
