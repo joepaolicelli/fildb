@@ -197,6 +197,10 @@ const { mutate: updateProductType } = useMutation({
           </UFormField>
         </div>
       </div>
+      <BulkProductEditorFilamentFields
+        :products="products"
+        @refetch-all="emit('refetchAll')"
+      />
     </div>
   </div>
 </template>
