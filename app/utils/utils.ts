@@ -70,8 +70,19 @@ export const getTagsForProductTypeByCategory = (
       categoryName: tc[0],
       tags: tc[1]
         ?.toSorted((a, b) => a.name.localeCompare(b.name))
-        // Add a selected boolean for use by components.
-        .map((t) => ({ ...t, selected: false })),
+        // Add selected and selectedCount fields for use by components.
+        .map(
+          (
+            t,
+          ): TagWithCategory & {
+            selected: boolean | 'indeterminate';
+            selectedCount: number;
+          } => ({
+            ...t,
+            selected: false,
+            selectedCount: 0, // Used for bulk editing.
+          }),
+        ),
     }));
 
     // Sort alphabetically by categoryName, putting 'None' last.

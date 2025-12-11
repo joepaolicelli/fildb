@@ -9,7 +9,7 @@ import { useTags } from '~/queries/tags';
 const supabase = useSupabaseClient();
 const statusToaster = new StatusToaster('Filament Tags');
 
-// Just used for type for prop.
+// Just used for type for prop. TODO replace.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const productWithTagsQuery = supabase
   .from('products')
