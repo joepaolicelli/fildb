@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { InputMenuItem } from '@nuxt/ui';
-import { useMutation } from '@pinia/colada';
+import { useMutation, useQueryCache } from '@pinia/colada';
 import _ from 'lodash';
 import { objectToSnake } from 'ts-case-convert';
 import type { CamelCasedPropertiesDeep } from 'type-fest';
@@ -12,6 +12,7 @@ import { useTags } from '~/queries/tags';
 
 const supabase = useSupabaseClient();
 const toast = useToast();
+const queryCache = useQueryCache();
 const statusToaster = new StatusToaster('Bulk Products');
 
 const { brands } = useBrands();
@@ -161,7 +162,10 @@ const { mutate: updateBrand } = useMutation({
     }
     sending.value = false;
   },
-  onSettled: async () => emit('refetchAll'),
+  onSettled: async () => {
+    emit('refetchAll');
+    queryCache.invalidateQueries({ key: ['product'] });
+  },
 });
 
 const { mutate: updateProductType } = useMutation({
@@ -192,7 +196,10 @@ const { mutate: updateProductType } = useMutation({
     }
     sending.value = false;
   },
-  onSettled: async () => emit('refetchAll'),
+  onSettled: async () => {
+    emit('refetchAll');
+    queryCache.invalidateQueries({ key: ['product'] });
+  },
 });
 
 const { mutate: updateTags } = useMutation({
@@ -243,17 +250,20 @@ const { mutate: updateTags } = useMutation({
           break;
         }
       }
+    }
 
-      if (!toAddErrored && !toRemoveErrored) {
-        tagsToAdd.value = [];
-        tagsToRemove.value = [];
-        statusToaster.success('Updated!');
-      }
+    if (!toAddErrored && !toRemoveErrored) {
+      tagsToAdd.value = [];
+      tagsToRemove.value = [];
+      statusToaster.success('Updated!');
     }
 
     sending.value = false;
   },
-  onSettled: async () => emit('refetchAll'),
+  onSettled: async () => {
+    emit('refetchAll');
+    queryCache.invalidateQueries({ key: ['product'] });
+  },
 });
 </script>
 <template>
