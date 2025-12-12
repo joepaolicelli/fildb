@@ -283,8 +283,11 @@ const loadAllItems = async () => {
           <template #expanded="{ row }">
             <div class="max-w-screen">
               <div class="m-1 rounded-lg border-2 border-slate-400 p-2">
-                <div class="font-bold uppercase">Listing</div>
+                <div id="listingFormLabel" class="font-bold uppercase">
+                  Listing
+                </div>
                 <UForm
+                  aria-labelledby="listingFormLabel"
                   :schema="listingFormSchema"
                   :state="row.original.form"
                   class="flex gap-2"
@@ -307,8 +310,9 @@ const loadAllItems = async () => {
                 </UForm>
               </div>
               <div class="m-1 rounded-lg border-2 border-slate-400 p-2">
-                <div class="font-bold uppercase">SKU</div>
+                <div id="skuFormLabel" class="font-bold uppercase">SKU</div>
                 <UForm
+                  aria-labelledby="skuFormLabel"
                   :schema="skuFormSchema"
                   :state="row.original.skuForm"
                   class="flex gap-2"

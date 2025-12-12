@@ -239,6 +239,10 @@ end $$;
 
 (This only clears table rows, so it won't delete itself or the enums.)
 
+##### Initial Field Values Function
+
+Create a new function named `add_initial_field_values` in the test Supabase, in the public schema, changing language to `sql`, and selecting "SECURITY DEFINER" as the security type. Add all the SQL in [this file](docs/initial-field-values.md) to the function.
+
 #### Recommendations for Running E2E Tests Locally
 
 - Use the testing tab in VS code, with the Playright extension.

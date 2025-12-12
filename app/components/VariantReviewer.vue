@@ -159,8 +159,9 @@ const isSpoolReusableOptions = ref(['yes', 'no']);
       v-else-if="variant.data"
       class="m-1 rounded-lg border-2 border-slate-400 p-2"
     >
-      <div class="font-bold uppercase">Variant</div>
+      <div id="variantFormLabel" class="font-bold uppercase">Variant</div>
       <UForm
+        aria-labelledby="variantFormLabel"
         :schema="variantFormSchema"
         :state="form"
         class="flex flex-wrap gap-2"
@@ -176,6 +177,7 @@ const isSpoolReusableOptions = ref(['yes', 'no']);
       <USeparator class="my-2" />
       <UForm
         v-if="variant.data.products.type === 'filament'"
+        aria-label="Variant Filament"
         :schema="filamentVariantFormSchema"
         :state="filamentTypeForm"
         class="flex flex-wrap gap-x-4 gap-y-3"

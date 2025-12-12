@@ -106,6 +106,7 @@ const { mutate: updateFilament } = useMutation({
 </script>
 <template>
   <UForm
+    aria-label="Product Filament"
     :schema="filamentFormSchema"
     :state="form"
     :disabled="sending"
