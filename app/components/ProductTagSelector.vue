@@ -121,7 +121,7 @@ const { mutate: updateTags } = useMutation({
 </script>
 <template>
   <div>
-    <div class="flex flex-wrap">
+    <div aria-label="Product Tags" class="flex flex-wrap">
       <div
         v-for="tagCat of availableTagsByCategory"
         :key="tagCat.categoryName"

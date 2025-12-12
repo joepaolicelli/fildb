@@ -189,3 +189,165 @@ test.describe('Pending Listing', () => {
     ).toBeVisible();
   });
 });
+
+test.describe('Bulk Editing', () => {
+  test.beforeEach(async ({ page }) => {
+    await login(page, testUsers.testMaintainer1);
+    // Site1/Page1
+    await page.goto('/admin/pending/3651e6eb-6547-43a5-bd03-929b93ff4065');
+
+    await page.getByRole('button', { name: 'Load All Items' }).click();
+  });
+
+  test('should load bulk edit options', async ({ page }) => {
+    await expect(page.getByText('3 Unique Products Selected')).toBeVisible();
+
+    await expect(
+      page.getByRole('tabpanel', { name: 'Products' }).getByLabel('Brand'),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('tabpanel', { name: 'Products' }).getByLabel('Type'),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('checkbox', { name: 'Imitates Marble' }),
+    ).toBeVisible();
+  });
+
+  test('should add and then remove tags on multiple products', async ({
+    page,
+  }) => {
+    await page.getByRole('checkbox', { name: 'White' }).click();
+    await page.getByRole('checkbox', { name: 'Imitates Marble' }).click();
+    await page.getByRole('button', { name: 'Update 2 tags' }).click();
+
+    await expect(
+      page.locator('label').filter({ hasText: 'White' }).getByText('3/3'),
+    ).toBeVisible();
+    await expect(
+      page
+        .locator('label')
+        .filter({ hasText: 'Imitates Marble' })
+        .getByText('3/3'),
+    ).toBeVisible();
+
+    // Open details for first listing.
+    await page
+      .getByRole('row', { name: 'Moonlu 1kg PLA Red Spool' })
+      .getByRole('button')
+      .click();
+
+    await expect(
+      page
+        .getByLabel('Product Tags')
+        .getByRole('checkbox', { name: 'White', exact: true }),
+    ).toBeChecked();
+    await expect(
+      page
+        .getByLabel('Product Tags')
+        .getByRole('checkbox', { name: 'Imitates Marble', exact: true }),
+    ).toBeChecked();
+
+    // Close details for first listing.
+    await page
+      .getByRole('row', { name: 'Moonlu 1kg PLA Red Spool' })
+      .getByRole('button')
+      .click();
+
+    await page.getByRole('checkbox', { name: 'White' }).click();
+    await page.getByRole('checkbox', { name: 'Imitates Marble' }).click();
+    await page.getByRole('button', { name: 'Update 2 tags' }).click();
+
+    await expect(
+      page.locator('label').filter({ hasText: 'White' }).getByText('0/3'),
+    ).toBeVisible();
+    await expect(
+      page
+        .locator('label')
+        .filter({ hasText: 'Imitates Marble' })
+        .getByText('0/3'),
+    ).toBeVisible();
+
+    // Open details for first listing.
+    await page
+      .getByRole('row', { name: 'Moonlu 1kg PLA Red Spool' })
+      .getByRole('button')
+      .click();
+
+    await expect(
+      page
+        .getByLabel('Product Tags')
+        .getByRole('checkbox', { name: 'White', exact: true }),
+    ).not.toBeChecked();
+    await expect(
+      page
+        .getByLabel('Product Tags')
+        .getByRole('checkbox', { name: 'Imitates Marble', exact: true }),
+    ).not.toBeChecked();
+  });
+
+  test('should simultaneously add and remove tags on multiple products', async ({
+    page,
+  }) => {
+    // Add some tags so we can remove them later.
+    await page.getByRole('checkbox', { name: 'White' }).click();
+    await page.getByRole('checkbox', { name: 'Imitates Marble' }).click();
+    await page.getByRole('button', { name: 'Update 2 tags' }).click();
+
+    // Wait for update to complete.
+    await expect(
+      page.getByRole('button', { name: 'Update 0 tags' }),
+    ).toBeVisible();
+
+    // Select two tags to add and one to remove.
+    await page.getByRole('checkbox', { name: 'White' }).click(); // Remove
+    await page.getByRole('checkbox', { name: 'Orange' }).click(); // Add
+    await page.getByRole('checkbox', { name: 'Glitter' }).click(); // Add
+
+    await page.getByRole('button', { name: 'Update 3 tags' }).click();
+
+    await expect(
+      page.locator('label').filter({ hasText: 'White' }).getByText('0/3'),
+    ).toBeVisible();
+    await expect(
+      page.locator('label').filter({ hasText: 'Orange' }).getByText('3/3'),
+    ).toBeVisible();
+    await expect(
+      page.locator('label').filter({ hasText: 'Glitter' }).getByText('3/3'),
+    ).toBeVisible();
+
+    await expect(
+      page
+        .locator('label')
+        .filter({ hasText: 'Imitates Marble' })
+        .getByText('3/3'),
+    ).toBeVisible();
+
+    // Open details for first listing.
+    await page
+      .getByRole('row', { name: 'Moonlu 1kg PLA Red Spool' })
+      .getByRole('button')
+      .click();
+
+    await expect(
+      page
+        .getByLabel('Product Tags')
+        .getByRole('checkbox', { name: 'White', exact: true }),
+    ).not.toBeChecked();
+    await expect(
+      page
+        .getByLabel('Product Tags')
+        .getByRole('checkbox', { name: 'Orange', exact: true }),
+    ).toBeChecked();
+    await expect(
+      page
+        .getByLabel('Product Tags')
+        .getByRole('checkbox', { name: 'Glitter', exact: true }),
+    ).toBeChecked();
+
+    await expect(
+      page
+        .getByLabel('Product Tags')
+        .getByRole('checkbox', { name: 'Imitates Marble', exact: true }),
+    ).toBeChecked();
+  });
+});
