@@ -146,7 +146,7 @@ const { mutate: updateTags } = useMutation({
       color="info"
       class="h-fit self-end"
       @click="updateTags()"
-      >Update</UButton
+      >Update Tags</UButton
     >
   </div>
 </template>

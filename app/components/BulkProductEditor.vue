@@ -212,13 +212,15 @@ const { mutate: updateTags } = useMutation({
       const { error } = await supabase.from('product_tags').insert(
         tagsToAdd.value
           .filter((t) => t != null)
-          .map((tag) =>
-            selectedProducts.value.map((sp) =>
-              objectToSnake({
-                productId: sp.id,
-                tagId: tag,
-              }),
-            ),
+          .map((tagId) =>
+            selectedProducts.value
+              .filter((sp) => sp.tags.findIndex((t) => t.id === tagId) === -1)
+              .map((sp) =>
+                objectToSnake({
+                  productId: sp.id,
+                  tagId,
+                }),
+              ),
           )
           .flat(),
       );
@@ -227,8 +229,6 @@ const { mutate: updateTags } = useMutation({
         statusToaster.error('Update Failed!', error.message);
         console.log(error);
         toAddErrored = true;
-      } else {
-        statusToaster.success('Updated!');
       }
     }
 
@@ -376,7 +376,11 @@ const { mutate: updateTags } = useMutation({
           color="info"
           class="mt-2 h-fit self-end"
           @click="updateTags()"
-          >Update {{ tagsToAdd.length + tagsToRemove.length }} tags</UButton
+          >Update
+          {{ tagsToAdd.length + tagsToRemove.length }}
+          tag{{
+            tagsToAdd.length + tagsToRemove.length === 1 ? '' : 's'
+          }}</UButton
         >
         <UButton
           type="button"

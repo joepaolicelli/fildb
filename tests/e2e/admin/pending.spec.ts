@@ -350,4 +350,76 @@ test.describe('Bulk Editing', () => {
         .getByRole('checkbox', { name: 'Imitates Marble', exact: true }),
     ).toBeChecked();
   });
+
+  test('should add tag to all selected even if one is already tagged', async ({
+    page,
+  }) => {
+    // Add some tag to the first product.
+    await page
+      .getByRole('row', { name: 'Moonlu 1kg PLA Red Spool' })
+      .getByRole('button')
+      .click();
+
+    await page
+      .getByLabel('Product Tags')
+      .getByRole('checkbox', { name: 'White', exact: true })
+      .click();
+
+    await page.getByRole('button', { name: 'Update Tags' }).click();
+
+    // Wait for update to complete.
+    await expect(
+      page.getByRole('button', { name: 'Update Tags' }),
+    ).toBeEnabled();
+
+    // Hide first product.
+    await page
+      .getByRole('row', { name: 'Moonlu 1kg PLA Red Spool' })
+      .getByRole('button')
+      .click();
+
+    // Reload items.
+    await page.getByRole('button', { name: 'Load All Items' }).click();
+
+    await expect(
+      page.locator('label').filter({ hasText: 'White' }).getByText('1/3'),
+    ).toBeVisible();
+
+    await page.getByRole('checkbox', { name: 'White' }).click();
+
+    await page.getByRole('button', { name: 'Update 1 tag' }).click();
+
+    await expect(
+      page.locator('label').filter({ hasText: 'White' }).getByText('3/3'),
+    ).toBeVisible();
+
+    // Open details for first listing.
+    await page
+      .getByRole('row', { name: 'Moonlu 1kg PLA Red Spool' })
+      .getByRole('button')
+      .click();
+
+    await expect(
+      page
+        .getByLabel('Product Tags')
+        .getByRole('checkbox', { name: 'White', exact: true }),
+    ).toBeChecked();
+
+    await page
+      .getByRole('row', { name: 'Moonlu 1kg PLA Red Spool' })
+      .getByRole('button')
+      .click();
+
+    // Open details for third listing.
+    await page
+      .getByRole('row', { name: 'Moonlu 1kg PLA Blue Spool' })
+      .getByRole('button')
+      .click();
+
+    await expect(
+      page
+        .getByLabel('Product Tags')
+        .getByRole('checkbox', { name: 'White', exact: true }),
+    ).toBeChecked();
+  });
 });
