@@ -129,7 +129,11 @@ const loadAllItems = async () => {
     pendingVariants.value = _.uniqBy(
       objectToCamel(variantsResp.data).map((v) => ({
         ...v,
-        selected: true,
+        selected:
+          pendingVariants.value.length === 0
+            ? true
+            : (pendingVariants.value.find((pv) => pv.id === v.id)?.selected ??
+              false),
       })),
       'id',
     );
@@ -158,7 +162,11 @@ const loadAllItems = async () => {
     pendingProducts.value = _.uniqBy(
       objectToCamel(productsResp.data).map((p) => ({
         ...p,
-        selected: true,
+        selected:
+          pendingProducts.value.length === 0
+            ? true
+            : (pendingProducts.value.find((pp) => pp.id === p.id)?.selected ??
+              false),
       })),
       'id',
     );
@@ -168,7 +176,15 @@ const loadAllItems = async () => {
         .filter((v) =>
           pl.listing.skus.variantSkus.map((vs) => vs.variantId).includes(v.id),
         )
-        .map((v) => ({ ...v, selected: true, productSelected: true }));
+        .map((v) => ({
+          ...v,
+          selected:
+            pendingVariants.value.find((pv) => pv.id === v.id)?.selected ??
+            false,
+          productSelected:
+            pendingProducts.value.find((pp) => pp.id === v.productId)
+              ?.selected ?? false,
+        }));
     }
   }
 };
