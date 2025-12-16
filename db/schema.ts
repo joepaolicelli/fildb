@@ -1,9 +1,11 @@
 import { count, eq, isNotNull, isNull, sql } from 'drizzle-orm';
 import {
+  type AnyPgColumn,
   boolean,
   check,
   integer,
   jsonb,
+  numeric,
   pgEnum,
   pgPolicy,
   pgTable,
@@ -604,6 +606,244 @@ export const listings = pgTable(
     }),
     pgPolicy('update access', {
       for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+  ],
+);
+
+export const listingGroups = pgTable(
+  'listing_groups',
+  {
+    id: uuid().primaryKey(),
+    name: text(),
+    ...timestamps,
+    publishedAt: timestamp(),
+  },
+  () => [
+    pgPolicy('read for all', {
+      for: 'select',
+      to: 'public',
+      using: sql`true`,
+    }),
+    pgPolicy('insert access', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+    pgPolicy('update access', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+  ],
+);
+
+export const listingGroupMemberships = pgTable(
+  'listing_group_memberships',
+  {
+    listingId: uuid()
+      .notNull()
+      .references(() => listings.id),
+    listingGroupId: uuid()
+      .notNull()
+      .references(() => listingGroups.id),
+    ...timestamps,
+  },
+  (table) => [
+    primaryKey({ columns: [table.listingId, table.listingGroupId] }),
+    pgPolicy('read for all', {
+      for: 'select',
+      to: 'public',
+      using: sql`true`,
+    }),
+    pgPolicy('insert access', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+    pgPolicy('update access', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+    pgPolicy('delete access', {
+      for: 'delete',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+  ],
+);
+
+export const membershipPrograms = pgTable(
+  'membership_programs',
+  {
+    id: uuid().primaryKey(),
+    siteId: uuid().references(() => sites.id),
+    name: text().notNull(),
+    description: text(),
+    ...timestamps,
+  },
+  () => [
+    pgPolicy('read for all', {
+      for: 'select',
+      to: 'public',
+      using: sql`true`,
+    }),
+    pgPolicy('insert access', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+    pgPolicy('update access', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+  ],
+);
+
+export const locations = pgTable(
+  'locations',
+  {
+    id: uuid().primaryKey(),
+    name: text().notNull(),
+    description: text(),
+    parentLocationId: uuid().references((): AnyPgColumn => locations.id),
+    ...timestamps,
+  },
+  () => [
+    pgPolicy('read for all', {
+      for: 'select',
+      to: 'public',
+      using: sql`true`,
+    }),
+    pgPolicy('insert access', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+    pgPolicy('update access', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+  ],
+);
+
+export const shippingPolicyTypes = [
+  'flat',
+  'variable',
+  'price',
+  'quantity',
+  'weight',
+  'pickup',
+  'unavailable', // explicity unavailable
+] as const;
+export const shippingPolicyTypeEnum = pgEnum(
+  'shipping_policy_type',
+  shippingPolicyTypes,
+);
+
+export const shippingPolicies = pgTable(
+  'shipping_policies',
+  {
+    id: uuid().primaryKey(),
+    siteId: uuid()
+      .notNull()
+      .references(() => sites.id),
+    name: text().notNull(),
+    sources: jsonb(),
+    // location should always be set except for pickup type.
+    locationId: uuid().references(() => locations.id),
+    // null if no exceptions, text describing exceptions otherwise.
+    locationExceptions: text(),
+    type: shippingPolicyTypeEnum().notNull(),
+    rate: numeric(),
+    // ISO 4217 code, e.g. USD
+    currency: text(),
+    // null if no additional fees, text describing what they might be
+    // otherwise.
+    additionalFees: text(),
+    // Meaning depends on the policy type:
+    // - price: minimum price at which policy applies, inclusive
+    // - quantity: minimum quantity at which policy applies, inclusive
+    // - weight: maximum weight in grams at which policy applies, exclusive
+    boundary: numeric(),
+    // Shipping service (e.g. USPS, DHL, USPS Priority Mail)
+    service: text(),
+    estDaysMin: integer(),
+    estDaysMax: integer(),
+    requiredMembershipId: uuid().references(() => membershipPrograms.id),
+    // Only for pickup type.
+    pickupAddresses: text()
+      .array()
+      .default(sql`ARRAY[]::text[]`), // Blank array,
+    // If siteDefault is false, then policy only applies to specific listings
+    // linked to it in listing_shipping_policies.
+    siteDefault: boolean().notNull().default(false),
+    // start and end time should only be used if siteDefault is true. If false,
+    // the start and end times in listing_shipping_policies are what applies.
+    startTime: timestamp(),
+    endTime: timestamp(),
+    ...timestamps,
+    publishedAt: timestamp(),
+  },
+  () => [
+    pgPolicy('read for all', {
+      for: 'select',
+      to: 'public',
+      using: sql`true`,
+    }),
+    pgPolicy('insert access', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+    pgPolicy('update access', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+  ],
+);
+
+export const listingShippingPolicies = pgTable(
+  'listing_shipping_policies',
+  {
+    listingId: uuid()
+      .notNull()
+      .references(() => listings.id),
+    shippingPolicyId: uuid()
+      .notNull()
+      .references(() => shippingPolicies.id),
+    startTime: timestamp().notNull(),
+    endTime: timestamp(),
+    eligibleListingsGroupId: uuid().references(() => listingGroups.id),
+    ...timestamps,
+    publishedAt: timestamp(),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.listingId, table.shippingPolicyId, table.startTime],
+    }),
+    pgPolicy('read for all', {
+      for: 'select',
+      to: 'public',
+      using: sql`true`,
+    }),
+    pgPolicy('insert access', {
+      for: 'insert',
+      to: authenticatedRole,
+      withCheck: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+    pgPolicy('update access', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(SELECT authorize('manage_published_items'))`,
+    }),
+    pgPolicy('delete access', {
+      for: 'delete',
       to: authenticatedRole,
       using: sql`(SELECT authorize('manage_published_items'))`,
     }),
