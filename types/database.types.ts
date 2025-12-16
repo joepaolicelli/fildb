@@ -180,6 +180,121 @@ export type Database = {
           },
         ]
       }
+      listing_group_memberships: {
+        Row: {
+          created_at: string
+          listing_group_id: string
+          listing_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          listing_group_id: string
+          listing_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          listing_group_id?: string
+          listing_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_group_memberships_listing_group_id_listing_groups_id_fk"
+            columns: ["listing_group_id"]
+            isOneToOne: false
+            referencedRelation: "listing_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_group_memberships_listing_id_listings_id_fk"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_groups: {
+        Row: {
+          created_at: string
+          id: string
+          name: string | null
+          published_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          name?: string | null
+          published_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string | null
+          published_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      listing_shipping_policies: {
+        Row: {
+          created_at: string
+          eligible_listings_group_id: string | null
+          end_time: string | null
+          listing_id: string
+          published_at: string | null
+          shipping_policy_id: string
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          eligible_listings_group_id?: string | null
+          end_time?: string | null
+          listing_id: string
+          published_at?: string | null
+          shipping_policy_id: string
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          eligible_listings_group_id?: string | null
+          end_time?: string | null
+          listing_id?: string
+          published_at?: string | null
+          shipping_policy_id?: string
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_shipping_policies_eligible_listings_group_id_listing_gr"
+            columns: ["eligible_listings_group_id"]
+            isOneToOne: false
+            referencedRelation: "listing_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_shipping_policies_listing_id_listings_id_fk"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_shipping_policies_shipping_policy_id_shipping_policies_"
+            columns: ["shipping_policy_id"]
+            isOneToOne: false
+            referencedRelation: "shipping_policies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listings: {
         Row: {
           created_at: string
@@ -224,6 +339,76 @@ export type Database = {
             columns: ["sku_id"]
             isOneToOne: false
             referencedRelation: "skus"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      locations: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          parent_location_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id: string
+          name: string
+          parent_location_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          parent_location_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "locations_parent_location_id_locations_id_fk"
+            columns: ["parent_location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      membership_programs: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          site_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id: string
+          name: string
+          site_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          site_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "membership_programs_site_id_sites_id_fk"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
             referencedColumns: ["id"]
           },
         ]
@@ -515,6 +700,103 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      shipping_policies: {
+        Row: {
+          additional_fees: string | null
+          boundary: number | null
+          created_at: string
+          currency: string | null
+          end_time: string | null
+          est_days_max: number | null
+          est_days_min: number | null
+          id: string
+          location_exceptions: string | null
+          location_id: string | null
+          name: string
+          pickup_addresses: string[] | null
+          published_at: string | null
+          rate: number | null
+          required_membership_id: string | null
+          service: string | null
+          site_default: boolean
+          site_id: string
+          sources: Json | null
+          start_time: string | null
+          type: Database["public"]["Enums"]["shipping_policy_type"]
+          updated_at: string
+        }
+        Insert: {
+          additional_fees?: string | null
+          boundary?: number | null
+          created_at?: string
+          currency?: string | null
+          end_time?: string | null
+          est_days_max?: number | null
+          est_days_min?: number | null
+          id: string
+          location_exceptions?: string | null
+          location_id?: string | null
+          name: string
+          pickup_addresses?: string[] | null
+          published_at?: string | null
+          rate?: number | null
+          required_membership_id?: string | null
+          service?: string | null
+          site_default?: boolean
+          site_id: string
+          sources?: Json | null
+          start_time?: string | null
+          type: Database["public"]["Enums"]["shipping_policy_type"]
+          updated_at?: string
+        }
+        Update: {
+          additional_fees?: string | null
+          boundary?: number | null
+          created_at?: string
+          currency?: string | null
+          end_time?: string | null
+          est_days_max?: number | null
+          est_days_min?: number | null
+          id?: string
+          location_exceptions?: string | null
+          location_id?: string | null
+          name?: string
+          pickup_addresses?: string[] | null
+          published_at?: string | null
+          rate?: number | null
+          required_membership_id?: string | null
+          service?: string | null
+          site_default?: boolean
+          site_id?: string
+          sources?: Json | null
+          start_time?: string | null
+          type?: Database["public"]["Enums"]["shipping_policy_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipping_policies_location_id_locations_id_fk"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipping_policies_required_membership_id_membership_programs_id"
+            columns: ["required_membership_id"]
+            isOneToOne: false
+            referencedRelation: "membership_programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipping_policies_site_id_sites_id_fk"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sites: {
         Row: {
@@ -824,6 +1106,14 @@ export type Database = {
       product_group_type: "product_line"
       product_type: "filament" | "printer"
       scrape_status: "pending" | "active" | "paused" | "archived"
+      shipping_policy_type:
+        | "flat"
+        | "variable"
+        | "price"
+        | "quantity"
+        | "weight"
+        | "pickup"
+        | "unavailable"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -969,6 +1259,15 @@ export const Constants = {
       product_group_type: ["product_line"],
       product_type: ["filament", "printer"],
       scrape_status: ["pending", "active", "paused", "archived"],
+      shipping_policy_type: [
+        "flat",
+        "variable",
+        "price",
+        "quantity",
+        "weight",
+        "pickup",
+        "unavailable",
+      ],
     },
   },
 } as const
