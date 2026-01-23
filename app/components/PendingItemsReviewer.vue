@@ -7,12 +7,16 @@ import { useRoute } from 'vue-router';
 import { z } from 'zod';
 
 import type { Tables } from '~~/types/database.types';
+import { usePageWithPendingListings } from '~/queries/pageWithPendingListings';
 import { usePendingListingsByPage } from '~/queries/pendingListingsByPage';
 
 const UButton = resolveComponent('UButton');
 
 const route = useRoute();
 const supabase = useSupabaseClient();
+
+const { pageInfo, pageId } = usePageWithPendingListings();
+pageId.value = route.params.pageId as string;
 
 const { listings, asyncStatus } = usePendingListingsByPage();
 
@@ -208,6 +212,9 @@ const loadAllItems = async () => {
         />
       </div>
       <div v-else-if="listings.data">
+        <div v-if="pageInfo.data">
+          Page: <ULink to="pageInfo.data.url">{{ pageInfo.data.url }}</ULink>
+        </div>
         <div class="mt-3 flex w-full justify-end">
           <div class="text-sm">
             {{ listings.data.length }} pending listings
