@@ -213,7 +213,8 @@ const loadAllItems = async () => {
       </div>
       <div v-else-if="listings.data">
         <div v-if="pageInfo.data">
-          Page: <ULink to="pageInfo.data.url">{{ pageInfo.data.url }}</ULink>
+          Page:
+          <ULink :to="pageInfo.data.url ?? '#'">{{ pageInfo.data.url }}</ULink>
         </div>
         <div class="mt-3 flex w-full justify-end">
           <div class="text-sm">

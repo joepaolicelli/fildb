@@ -7,7 +7,7 @@ export const usePageWithPendingListings = defineQuery(() => {
   const pageId = useState<string>('pageId', () => 'null');
 
   const { state, ...rest } = useQuery({
-    key: ['pagesWithPendingListings', pageId.value],
+    key: () => ['pagesWithPendingListings', pageId.value],
     query: async () => {
       const resp = await client
         .from('pages_with_pending_listings_view')
