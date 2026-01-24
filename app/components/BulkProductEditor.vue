@@ -32,7 +32,6 @@ const selectedProducts = computed(() => {
 });
 
 const brand = ref('');
-const brandNotes = ref('');
 const brandOptions = computed((): InputMenuItem[] => {
   if (brands.value.error) {
     toast.add({
@@ -58,7 +57,6 @@ const brandOptions = computed((): InputMenuItem[] => {
 
 type productTypeType = '' | '[null]' | (typeof productTypes)[number];
 const productType: Ref<productTypeType> = ref('[null]');
-const productTypeNotes = ref('');
 const productTypeOptions = ref(['[null]', ...productTypes]);
 
 const tagsToAdd: Ref<string[]> = ref([]);
@@ -75,6 +73,9 @@ const addTagToBeChanged = (tagId: string, selected: boolean | string) => {
   }
 };
 
+const currentBrandNames: Ref<string[]> = ref([]);
+const currentTypeNames: Ref<string[]> = ref([]);
+
 watch(
   [() => products, () => brands, () => tags],
   () => {
@@ -85,12 +86,14 @@ watch(
       );
       if (currentBrands.length === 1) {
         brand.value = currentBrands[0] ?? '';
-        brandNotes.value = `Current brand for all: ${
-          brands.value.data.find((b) => b.id === currentBrands[0])?.name
-        }`;
+        currentBrandNames.value = [
+          brands.value.data.find((b) => b.id === currentBrands[0])?.name ?? '',
+        ];
       } else {
         brand.value = '';
-        brandNotes.value = `${currentBrands.length} current brands`;
+        currentBrandNames.value = currentBrands.map(
+          (b) => brands.value.data?.find((br) => br.id === b)?.name ?? '',
+        );
       }
     }
 
@@ -98,10 +101,10 @@ watch(
     const currentTypes = _.uniq(selectedProducts.value.map((p) => p.type));
     if (currentTypes.length === 1) {
       productType.value = currentTypes[0] ?? '';
-      productTypeNotes.value = `Current type for all: ${currentTypes[0]}`;
+      currentTypeNames.value = [currentTypes[0] ?? 'null'];
     } else {
       productType.value = '';
-      productTypeNotes.value = `${currentTypes.length} current types`;
+      currentTypeNames.value = currentTypes.map((ct) => ct ?? 'null');
     }
 
     // Tags
@@ -279,7 +282,7 @@ const { mutate: updateTags } = useMutation({
       </div>
       <div class="mt-2 flex">
         <div class="m-1 rounded-lg border-1 border-slate-400 p-2">
-          <UFormField label="Brand" :help="brandNotes">
+          <UFormField label="Brand">
             <UFieldGroup>
               <UInputMenu
                 v-model="brand"
@@ -295,10 +298,21 @@ const { mutate: updateTags } = useMutation({
                 >Update</UButton
               >
             </UFieldGroup>
+            <template #help>
+              <div class="text-slate-500">
+                <div v-if="currentBrandNames.length === 1">
+                  Current brand for all: {{ currentBrandNames[0] }}
+                </div>
+                <div v-else-if="currentBrandNames.length > 1">
+                  <div>{{ currentBrandNames.length }} current brands</div>
+                  <div v-for="c of currentBrandNames" :key="c">- {{ c }}</div>
+                </div>
+              </div>
+            </template>
           </UFormField>
         </div>
         <div class="m-1 rounded-lg border-1 border-slate-400 p-2">
-          <UFormField label="Type" :help="productTypeNotes">
+          <UFormField label="Type">
             <UFieldGroup>
               <UInputMenu
                 v-model="productType"
@@ -314,6 +328,17 @@ const { mutate: updateTags } = useMutation({
                 >Update</UButton
               >
             </UFieldGroup>
+            <template #help>
+              <div class="text-slate-500">
+                <div v-if="currentTypeNames.length === 1">
+                  Current type for all: {{ currentTypeNames[0] }}
+                </div>
+                <div v-else-if="currentTypeNames.length > 1">
+                  <div>{{ currentTypeNames.length }} current types</div>
+                  <div v-for="c of currentTypeNames" :key="c">- {{ c }}</div>
+                </div>
+              </div>
+            </template>
           </UFormField>
         </div>
       </div>

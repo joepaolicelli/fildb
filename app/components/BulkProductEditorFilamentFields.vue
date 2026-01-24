@@ -54,36 +54,41 @@ const materialClassOptions = computed((): SelectItem[] => {
   return [{ label: '[null]', value: '[null]' }];
 });
 
+const currentMaterials: Ref<string[]> = ref([]);
+const currentMaterialClassNames: Ref<string[]> = ref([]);
+
 watch(
   [() => products, () => filamentMaterialClasses],
   () => {
     // Material
-    const currentMaterials = _.uniq(
+    currentMaterials.value = _.uniq(
       selectedProducts.value.map((p) => p.filaments?.material),
     ).filter((p) => p != null);
-    if (currentMaterials.length === 1) {
-      material.value = currentMaterials[0] ?? '';
-      materialNotes.value = `Current material for all: ${currentMaterials[0]}`;
+    if (currentMaterials.value.length === 1) {
+      material.value = currentMaterials.value[0] ?? '';
     } else {
       material.value = '';
-      materialNotes.value = `${currentMaterials.length} current materials`;
     }
 
     // Material Class
     if (filamentMaterialClasses.value.data) {
-      const currentFMCs = _.uniq(
+      const currentMaterialClasses = _.uniq(
         selectedProducts.value.map((p) => p.filaments?.materialClass),
       ).filter((p) => p != null);
-      if (currentFMCs.length === 1) {
-        materialClass.value = currentFMCs[0] ?? '';
-        materialClassNotes.value = `Current material class for all: ${
+      if (currentMaterialClasses.length === 1) {
+        materialClass.value = currentMaterialClasses[0] ?? '';
+        currentMaterialClassNames.value = [
           filamentMaterialClasses.value.data.find(
-            (fmc) => fmc.id === currentFMCs[0],
-          )?.name
-        }`;
+            (fmc) => fmc.id === currentMaterialClasses[0],
+          )?.name ?? '',
+        ];
       } else {
         materialClass.value = '';
-        materialClassNotes.value = `${currentFMCs.length} current material classes`;
+        currentMaterialClassNames.value = currentMaterialClasses.map(
+          (cmc) =>
+            filamentMaterialClasses.value.data?.find((fmc) => fmc.id === cmc)
+              ?.name ?? '',
+        );
       }
     }
   },
@@ -159,7 +164,7 @@ const { mutate: updateMaterialClass } = useMutation({
     <div>
       <div class="mt-2 flex">
         <div class="m-1 rounded-lg border-1 border-slate-400 p-2">
-          <UFormField label="Material" :help="materialNotes">
+          <UFormField label="Material">
             <UFieldGroup>
               <UInput v-model="material" placeholder="---" class="min-w-48" />
               <UButton
@@ -169,10 +174,23 @@ const { mutate: updateMaterialClass } = useMutation({
                 >Update</UButton
               >
             </UFieldGroup>
+            <template #help>
+              <div class="text-slate-500">
+                <div v-if="currentMaterials.length === 1">
+                  Current material for all: {{ currentMaterials[0] }}
+                </div>
+                <div v-else-if="currentMaterials.length > 1">
+                  <div>{{ currentMaterials.length }} current materials</div>
+                  <div v-for="cm of currentMaterials" :key="cm">
+                    - {{ cm }}
+                  </div>
+                </div>
+              </div>
+            </template>
           </UFormField>
         </div>
         <div class="m-1 rounded-lg border-1 border-slate-400 p-2">
-          <UFormField label="Material Class" :help="materialClassNotes">
+          <UFormField label="Material Class">
             <UFieldGroup>
               <UInputMenu
                 v-model="materialClass"
@@ -188,6 +206,23 @@ const { mutate: updateMaterialClass } = useMutation({
                 >Update</UButton
               >
             </UFieldGroup>
+            <template #help>
+              <div class="text-slate-500">
+                <div v-if="currentMaterialClassNames.length === 1">
+                  Current material class for all:
+                  {{ currentMaterialClassNames[0] }}
+                </div>
+                <div v-else-if="currentMaterialClassNames.length > 1">
+                  <div>
+                    {{ currentMaterialClassNames.length }} current material
+                    classes
+                  </div>
+                  <div v-for="cm of currentMaterialClassNames" :key="cm">
+                    - {{ cm }}
+                  </div>
+                </div>
+              </div>
+            </template>
           </UFormField>
         </div>
       </div>
