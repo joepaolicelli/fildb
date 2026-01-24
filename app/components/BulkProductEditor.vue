@@ -73,6 +73,8 @@ const addTagToBeChanged = (tagId: string, selected: boolean | string) => {
   }
 };
 
+const productTemplatedName: Ref<string> = ref('');
+
 const currentBrandNames: Ref<string[]> = ref([]);
 const currentTypeNames: Ref<string[]> = ref([]);
 
@@ -195,6 +197,47 @@ const { mutate: updateProductType } = useMutation({
         console.log(error);
       } else {
         statusToaster.success('Type Updated!');
+      }
+    }
+    sending.value = false;
+  },
+  onSettled: async () => {
+    emit('refetchAll');
+    queryCache.invalidateQueries({ key: ['product'] });
+  },
+});
+
+const { mutate: updateName } = useMutation({
+  mutation: async () => {
+    sending.value = true;
+    let noErrors = true;
+
+    if (productTemplatedName.value === '') {
+      statusToaster.error('Name Update Failed!', 'Name blank.');
+    } else {
+      for (const product of selectedProducts.value) {
+        const completedName = productTemplatedName.value
+          .replaceAll('{colorName}', product.filaments?.colorName ?? '')
+          .replaceAll('{material}', product.filaments?.material ?? '');
+
+        const { error } = await supabase
+          .from('products')
+          .update(
+            objectToSnake({
+              name: completedName,
+            }),
+          )
+          .eq('id', product.id);
+
+        if (error) {
+          statusToaster.error('Name Update Failed!', error.message);
+          console.log(error);
+          noErrors = false;
+          break;
+        }
+      }
+      if (noErrors) {
+        statusToaster.success('Name Updated!');
       }
     }
     sending.value = false;
@@ -339,6 +382,24 @@ const { mutate: updateTags } = useMutation({
                 </div>
               </div>
             </template>
+          </UFormField>
+        </div>
+        <div class="m-1 rounded-lg border-1 border-slate-400 p-2">
+          <UFormField label="Name" help="Available: {colorName}, {material}">
+            <UFieldGroup>
+              <UInput
+                v-model="productTemplatedName"
+                value-key="value"
+                placeholder="---"
+                class="min-w-48"
+              />
+              <UButton
+                :disabled="sending || productTemplatedName === ''"
+                :loading="sending"
+                @click="updateName()"
+                >Update</UButton
+              >
+            </UFieldGroup>
           </UFormField>
         </div>
       </div>
