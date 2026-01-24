@@ -274,6 +274,7 @@ const loadAllItems = async () => {
                   :label="variant.name"
                   variant="card"
                   class="rounded-none"
+                  :class="{ 'bg-slate-200': variant.publishedAt != null }"
                   @update:model-value="
                     (selected) => {
                       const pv = pendingVariants.find(
@@ -290,6 +291,9 @@ const loadAllItems = async () => {
                   :label="variant.products.name"
                   variant="card"
                   class="rounded-none"
+                  :class="{
+                    'bg-slate-200': variant.products.publishedAt != null,
+                  }"
                   @update:model-value="
                     (selected) => {
                       const pp = pendingProducts.find(
