@@ -10,4 +10,12 @@
   "observability": {
     "enabled": true,
   },
+  "env": {
+    "production": {
+      "name": "fildb",
+    },
+    "preview": {
+      "name": "fildb-preview",
+    },
+  },
 }
