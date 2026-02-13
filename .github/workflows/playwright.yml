@@ -1,16 +1,15 @@
 name: Playwright Tests
 on:
-  workflow_call:
-    inputs:
-      deployment-url:
-        required: true
-        type: string
+  push:
+    branches-ignore:
+      - 'master'
+
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     env:
-      PLAYWRIGHT_BASE_URL: ${{ inputs.deployment-url }}
+      PLAYWRIGHT_BASE_URL: https://${{ substring(github.sha, 0, 8) }}-fildb-preview.joepao.workers.dev
       TEST_SUPABASE_URL: ${{ secrets.TEST_SUPABASE_URL }}
       TEST_SUPABASE_KEY: ${{ secrets.TEST_SUPABASE_KEY }}
       TEST_ADMIN_1_PW: ${{ secrets.TEST_ADMIN_1_PW }}
