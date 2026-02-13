@@ -24,7 +24,7 @@
     "@iconify-json/solar": "^1.2.5",
     "@nuxt/eslint": "^1.10.0",
     "@nuxt/ui": "4.1.0",
-    "@nuxthub/core": "^0.9.0",
+    "@nuxthub/core": "^0.10.6",
     "@nuxtjs/supabase": "^2.0.1",
     "@pinia/colada": "^0.17.8",
     "@pinia/colada-nuxt": "^0.2.4",
