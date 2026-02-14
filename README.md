@@ -14,10 +14,10 @@ pnpm dev
 
 ## Deploy
 
-Deployment is automated via the NuxtHub integration with GitHub. It can be done manually with:
+Deployment to Cloudflare Workers using the `wrangler.jsonc` file can be set up in the Cloudflare dashboard to automatically trigger off of GitHub, or can be done manually with:
 
 ```bash
-npx nuxthub deploy
+pnpm run deploy
 ```
 
 ## Setup
