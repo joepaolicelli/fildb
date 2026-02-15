@@ -80,5 +80,5 @@ jobs:
     needs: deploy
     with:
       # https://github.com/cloudflare/wrangler-action?tab=readme-ov-file#using-the-deployment-url-and-pages-deployment-alias-url-output-variables
-      deployment-url: ${{ needs.deploy-test.outputs.test-deployment-url }}
+      deployment-url: ${{ needs.deploy.outputs.test-deployment-url }}
     secrets: inherit
