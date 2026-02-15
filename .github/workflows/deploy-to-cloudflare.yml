@@ -1,0 +1,90 @@
+name: Deploy to Cloudflare
+on: push
+
+jobs:
+  deploy:
+    name: 'Deploy to Cloudflare'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # "You can create environments and secure those environments with deployment protection rules. A job that references an environment must follow any protection rules for the environment before running or accessing the environment's secrets." https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments
+    environment:
+      # Ternary operator (see https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/evaluate-expressions-in-workflows-and-actions#example)
+      name: ${{ github.ref == 'refs/heads/master' && 'production' || 'test' }}
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      prod-deployment-url: ${{ steps.deploy-prod.outputs.deployment-url }}
+      preview-deployment-url: ${{ steps.deploy-preview.outputs.deployment-url }}
+      test-deployment-url: ${{ steps.deploy-test.outputs.deployment-url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build application
+        run: pnpm build
+
+      - name: Deploy to production
+        if: github.ref == 'refs/heads/master'
+        uses: cloudflare/wrangler-action@v3
+        id: deploy-prod
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --env production --name fildb
+        env:
+          CLOUDFLARE_ENV: production
+
+      - name: Deploy to preview
+        if: github.ref == 'refs/heads/dev'
+        uses: cloudflare/wrangler-action@v3
+        id: deploy-preview
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: versions upload --name fildb --message ${{ github.ref_name }}
+        env:
+          CLOUDFLARE_ENV: preview
+
+      - name: Deploy to test env
+        uses: cloudflare/wrangler-action@v3
+        id: deploy-test
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: versions upload --name fildb-test --message ${{ github.ref_name }}
+        env:
+          CLOUDFLARE_ENV: test
+
+      - name: Output deployment URL
+        run: |
+          echo "## Deployments" >> $GITHUB_STEP_SUMMARY
+          if [ -n "${{ steps.deploy-prod.outputs.deployment-url }}" ]; then
+            echo "- **Production**: ${{ steps.deploy-prod.outputs.deployment-url }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -n "${{ steps.deploy-preview.outputs.deployment-url }}" ]; then
+            echo "- **Preview**: ${{ steps.deploy-preview.outputs.deployment-url }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -n "${{ steps.deploy-test.outputs.deployment-url }}" ]; then
+            echo "- **Test**: ${{ steps.deploy-test.outputs.deployment-url }}" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  test:
+    uses: ./.github/workflows/playwright.yml
+    needs: deploy
+    with:
+      # https://github.com/cloudflare/wrangler-action?tab=readme-ov-file#using-the-deployment-url-and-pages-deployment-alias-url-output-variables
+      deployment-url: ${{ needs.deploy-test.outputs.test-deployment-url }}
+    secrets: inherit

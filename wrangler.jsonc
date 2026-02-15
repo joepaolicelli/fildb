@@ -15,7 +15,10 @@
       "name": "fildb",
     },
     "preview": {
-      "name": "fildb-preview",
+      "name": "fildb",
+    },
+    "test": {
+      "name": "fildb-test",
     },
   },
 }
