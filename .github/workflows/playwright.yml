@@ -11,6 +11,7 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     env:
+      PLAYWRIGHT_BASE_URL: ${{ inputs.deployment-url }}
       TEST_SUPABASE_URL: ${{ secrets.TEST_SUPABASE_URL }}
       TEST_SUPABASE_KEY: ${{ secrets.TEST_SUPABASE_KEY }}
       TEST_ADMIN_1_PW: ${{ secrets.TEST_ADMIN_1_PW }}
@@ -22,10 +23,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-      - name: Set Env
-        run: |
-          SHA_SHORT=$(git rev-parse --short ${{ github.sha }})
-          echo "PLAYWRIGHT_BASE_URL=https://${SHA_SHORT}-fildb-preview.joepao.workers.dev" >> $GITHUB_ENV
       - name: Install dependencies
         run: npm install -g pnpm && pnpm install
       - name: Install Playwright Browsers
