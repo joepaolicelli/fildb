@@ -43,9 +43,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy --env production --name fildb
-        env:
-          CLOUDFLARE_ENV: production
+          command: deploy --name fildb
 
       - name: Deploy to preview
         if: github.ref == 'refs/heads/dev'
@@ -55,8 +53,6 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: versions upload --name fildb --message ${{ github.ref_name }}
-        env:
-          CLOUDFLARE_ENV: preview
 
       - name: Deploy to test env
         uses: cloudflare/wrangler-action@v3
@@ -65,8 +61,6 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: versions upload --name fildb-test --message ${{ github.ref_name }}
-        env:
-          CLOUDFLARE_ENV: test
 
       - name: Output deployment URL
         run: |
