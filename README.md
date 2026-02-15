@@ -14,7 +14,7 @@ pnpm dev
 
 ## Deploy
 
-Deployment to Cloudflare Workers using the `wrangler.jsonc` file can be set up in the Cloudflare dashboard to automatically trigger off of GitHub, or can be done manually with:
+Deployment to Cloudflare Workers can be done using GitHub Actions using `.github/workflows/deploy-to-cloudflare.yml`. Configuration is in `wrangler.jsonc`. Deployment can also be done manually with:
 
 ```bash
 pnpm run deploy
